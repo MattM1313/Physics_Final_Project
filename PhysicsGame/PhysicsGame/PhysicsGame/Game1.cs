@@ -46,6 +46,20 @@ namespace PhysicsGame
             Fireball
 
         }
+
+
+
+        //-----Font----
+        SpriteBatch ForegroundBatch;
+        SpriteFont CourierNew;
+        Vector2 FontPos;
+        
+        //------------
+
+
+
+
+
         ShootingState shootState = ShootingState.Ball;
         
 
@@ -92,7 +106,7 @@ namespace PhysicsGame
             //-----------
             ballTex = Content.Load<Texture2D>("ball");
             fireballTex = Content.Load<Texture2D>("ball");
-
+            arrowTex = Content.Load<Texture2D>("Arrow");
             //ball = new Sprite(ballTex, player1.Position, new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))),
                 //true, 0, 1f, SpriteEffects.None);
 
@@ -106,6 +120,17 @@ namespace PhysicsGame
                 true, 0, 1f, SpriteEffects.None);
 
 
+
+            //-----Font--------------
+            CourierNew = Content.Load<SpriteFont>("Courrier");
+            ForegroundBatch = new SpriteBatch(graphics.GraphicsDevice);
+            FontPos = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2, 
+                graphics.GraphicsDevice.Viewport.Height / 2);
+            
+
+
+
+            //-----------------------
 
 
 
@@ -153,7 +178,7 @@ namespace PhysicsGame
             }
 
             updateInput();
-
+            doPhysics();
 
             base.Update(gameTime);
         }
@@ -196,6 +221,52 @@ namespace PhysicsGame
 
 
             spriteBatch.End();
+            //Font spriteBatch
+            ForegroundBatch.Begin();
+               
+            // Draw instructions
+            Color c = new Color(0, 0, 0);
+            string arrow = "Q = Arrows";
+            string ball = "W = CannonBalls";
+            string fireball = "E = FireBalls";
+
+            string space = "Space to fire";
+           
+            
+            if (shootState == ShootingState.Arrow)
+            {
+                ForegroundBatch.DrawString(CourierNew, arrow, new Vector2(10, 10), Color.Red);
+            }
+            else
+            {
+                ForegroundBatch.DrawString(CourierNew, arrow, new Vector2(10, 10), Color.Black);
+
+            }
+
+
+            if (shootState == ShootingState.Ball)
+            {
+                ForegroundBatch.DrawString(CourierNew, ball, new Vector2(10, 30), Color.Red);
+            }
+            else
+            {
+                ForegroundBatch.DrawString(CourierNew, ball, new Vector2(10, 30), Color.Black);
+            }
+
+            if (shootState == ShootingState.Fireball)
+            {
+                ForegroundBatch.DrawString(CourierNew, fireball, new Vector2(10, 50), Color.Red);
+            }
+            else
+            {
+                ForegroundBatch.DrawString(CourierNew, fireball, new Vector2(10, 50), Color.Black);
+            }
+
+            ForegroundBatch.DrawString(CourierNew, space, new Vector2(10, 400), c);
+            ForegroundBatch.End();
+
+
+
 
             base.Draw(gameTime);
         }
@@ -300,11 +371,60 @@ namespace PhysicsGame
            shootList.Add(fireballShot);
 
             break;
+
+                    case ShootingState.Arrow:
+            Sprite arrowShot = new Sprite(arrowTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 400f, true, 0, .1f, SpriteEffects.None);
+
+
+
+            arrowShot.Rotation = angle + (float)45.5;
+            shootList.Add(arrowShot);
+
+            break;
             }
         }
             prevMouseState = currMouseState;
+        }//End updateInput
+
+
+        private void doPhysics()
+        {
+            switch (shootState)
+            {
+                case ShootingState.Arrow:
+                    //---Arrow-Physics--
+                    foreach (Sprite s in shootList)
+                    {
+                        s.Velocity += new Vector2(0, 5);
+                    }
+
+
+                    break;
+
+                case ShootingState.Ball:
+                    //---Ball-Physics--
+                    foreach (Sprite s in shootList)
+                    {
+                        s.Velocity += new Vector2(0, 5);
+                    }
+
+                    break;
+
+                case ShootingState.Fireball:
+                    //---Fireball-Physics--
+
+
+                    break;
+
+
+
+            }
+
+
+
         }
 
 
-    }
+    }//End Class
 }
