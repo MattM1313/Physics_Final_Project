@@ -31,8 +31,19 @@ namespace PhysicsGame
         Texture2D arrowTex, ballTex, fireballTex;
         Sprite arrow, ball, fireball;
         List<Sprite> shootList = new List<Sprite>();
+        float fireDelay = FIRE_DELAY;
+        const float FIRE_DELAY = 100f;
 
         //------------
+
+
+        //---Camera---
+        Camera cam;
+        
+        //cam.Pos = new Vector2(500.0f,200.0f);
+
+
+        //----------
 
 
         MouseState prevMouseState;
@@ -80,8 +91,9 @@ namespace PhysicsGame
         /// </summary>
         protected override void Initialize()
         {
-         
 
+            cam = new Camera();
+            cam.Pos = new Vector2(500f, 200f);
 
 
 
@@ -116,7 +128,7 @@ namespace PhysicsGame
 
             player1Tex = Content.Load<Texture2D>("shield2_1");
             
-            player1 = new Sprite(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - (player1Tex.Height / 2)), Vector2.Zero,
+            player1 = new Sprite(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2 - (player1Tex.Height / 2)), Vector2.Zero,
                 true, 0, 1f, SpriteEffects.None);
 
 
@@ -158,8 +170,12 @@ namespace PhysicsGame
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
+            
 
-            Console.WriteLine(shootList.Count);
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+          
+            fireDelay -= elapsed;
+            Console.WriteLine(elapsed);
 
             for (int i = 0; i < shootList.Count; i++)
             {
@@ -191,7 +207,14 @@ namespace PhysicsGame
         {
             GraphicsDevice.Clear(Color.White);
 
-            spriteBatch.Begin();
+            
+            spriteBatch.Begin(SpriteSortMode.BackToFront,
+                        BlendState.AlphaBlend,
+                        null,
+                        null,
+                        null,
+                        null,
+                        cam.get_transformation(GraphicsDevice));
 
             player1.Draw(gameTime, spriteBatch);
             foreach (Sprite shot in shootList)
@@ -284,6 +307,7 @@ namespace PhysicsGame
             {
                 //player1.Up();
                 keyPressed = true;
+                cam.Move(new Vector2(0, 3));
             }
             if (keyState.IsKeyDown(Keys.Down)
               || keyState.IsKeyDown(Keys.S)
@@ -292,6 +316,7 @@ namespace PhysicsGame
             {
                 //player.Down();
                 keyPressed = true;
+                cam.Move(new Vector2(0, -3));
             }
             if (keyState.IsKeyDown(Keys.Left)
               || keyState.IsKeyDown(Keys.A)
@@ -300,6 +325,7 @@ namespace PhysicsGame
             {
                 //player.Left();
                 keyPressed = true;
+                cam.Move(new Vector2(3, 0));
             }
             if (keyState.IsKeyDown(Keys.Right)
               || keyState.IsKeyDown(Keys.D)
@@ -308,12 +334,13 @@ namespace PhysicsGame
             {
                 ///player.Right();
                 keyPressed = true;
+                cam.Move(new Vector2(-3,0));
             }
             //if (!keyPressed)
             //{
             //    player.Idle();
             //}
-           
+
             MouseState currMouseState = Mouse.GetState();
 
             if (currMouseState.X != prevMouseState.X ||
@@ -322,71 +349,82 @@ namespace PhysicsGame
                 //player.Rotation
                 Vector2 mouseLoc = new Vector2(currMouseState.X, currMouseState.Y);
 
-                
-                Vector2 direction = (player1.Position) - mouseLoc; 
+
+                Vector2 direction = (player1.Position) - mouseLoc;
                 angle = (float)(Math.Atan2(-direction.Y, -direction.X));
 
-               
+
                 //player1.Rotation = angle + (float)45.5;
 
 
             }
 
-             if (keyState.IsKeyDown(Keys.Q))
-             {
-                 shootState = ShootingState.Arrow;
-             }
-
-             if (keyState.IsKeyDown(Keys.W))
-             {
-                 shootState = ShootingState.Ball;
-             }
-
-             if (keyState.IsKeyDown(Keys.E))
-             {
-                 shootState = ShootingState.Fireball;
-             }
-
-
-
-             if (keyState.IsKeyDown(Keys.Space))
-             {
-                switch(shootState)
-                {
-                    case ShootingState.Ball:
-                Sprite ballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                            new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 400f, true, 0, 1f, SpriteEffects.None);
-                
-                
-            shootList.Add(ballShot);
-
-            break;
-
-
-                    case ShootingState.Fireball:
-            Sprite fireballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 600f, true, 0, 1.5f, SpriteEffects.None);
-
-
-           shootList.Add(fireballShot);
-
-            break;
-
-                    case ShootingState.Arrow:
-            Sprite arrowShot = new Sprite(arrowTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 400f, true, 0, .1f, SpriteEffects.None);
-
-
-
-            arrowShot.Rotation = angle + (float)45.5;
-            shootList.Add(arrowShot);
-
-            break;
+            if (keyState.IsKeyDown(Keys.Q))
+            {
+                shootState = ShootingState.Arrow;
+                cam.Zoom -= 0.1f;
             }
-        }
-            prevMouseState = currMouseState;
-        }//End updateInput
 
+            if (keyState.IsKeyDown(Keys.W))
+            {
+                shootState = ShootingState.Ball;
+                cam.Zoom += 0.1f;
+            }
+
+            if (keyState.IsKeyDown(Keys.E))
+            {
+                shootState = ShootingState.Fireball;
+                cam.Rotation += 0.5f;
+            }
+
+
+
+            if (keyState.IsKeyDown(Keys.Space))
+            {
+               if(fireDelay <= 0f)
+               {
+                    switch (shootState)
+                    {
+                        case ShootingState.Ball:
+                            Sprite ballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 200f, true, 0, 1f, SpriteEffects.None);
+
+
+                            shootList.Add(ballShot);
+
+                            break;
+
+
+                        case ShootingState.Fireball:
+                            Sprite fireballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 250f, true, 0, 1.5f, SpriteEffects.None);
+
+
+                            shootList.Add(fireballShot);
+
+                            break;
+
+                        case ShootingState.Arrow:
+                            Sprite arrowShot = new Sprite(arrowTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 300f, true, 0, .1f, SpriteEffects.None);
+
+
+
+                            //arrowShot.Rotation = angle + (float)45.5;
+                            arrowShot.Rotation += (float)Math.Atan2(arrowShot.Velocity.X * 10, -arrowShot.Velocity.Y * 10);
+
+
+
+                            shootList.Add(arrowShot);
+
+                            break;
+                    }
+                }
+                prevMouseState = currMouseState;
+                fireDelay = FIRE_DELAY;
+        }
+            
+        }//End updateInput
 
         private void doPhysics()
         {
@@ -397,6 +435,11 @@ namespace PhysicsGame
                     foreach (Sprite s in shootList)
                     {
                         s.Velocity += new Vector2(0, 5);
+                        s.Rotation = (float)Math.Atan2(s.Velocity.X, -s.Velocity.Y);
+
+
+                       
+
                     }
 
 
@@ -407,13 +450,20 @@ namespace PhysicsGame
                     foreach (Sprite s in shootList)
                     {
                         s.Velocity += new Vector2(0, 5);
+
+
+
+                     
                     }
 
                     break;
 
                 case ShootingState.Fireball:
                     //---Fireball-Physics--
-
+                    foreach (Sprite s in shootList)
+                    {
+                        s.Velocity += new Vector2(0, 5);
+                    }
 
                     break;
 
