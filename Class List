@@ -1,0 +1,28 @@
+Tower: Sprite
+-Position
+-health
+
+Player
+-position
+-initialVelocity
+-Velocity
+-knockback
+-health
+
+Enemy: SpriteFromSheet
+-health
+-velocity
+-initial velocity
+-strength
+-rotation
+Update();
+Draw();
+•	Enemy1
+•	Enemy2
+•	Enemy3
+
+Barrier: Sprite
+-health
+-position
+
+
