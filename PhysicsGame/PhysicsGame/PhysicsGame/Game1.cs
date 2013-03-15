@@ -32,7 +32,7 @@ namespace PhysicsGame
         Sprite arrow, ball, fireball;
         List<Sprite> shootList = new List<Sprite>();
         float fireDelay = FIRE_DELAY;
-        const float FIRE_DELAY = 100f;
+        const float FIRE_DELAY = 150f;
 
         //------------
 
