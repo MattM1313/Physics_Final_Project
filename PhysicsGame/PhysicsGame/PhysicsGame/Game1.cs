@@ -78,7 +78,9 @@ namespace PhysicsGame
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
+            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1280;
+            //graphics.IsFullScreen = true;
 
             IsMouseVisible = true;
         }
@@ -208,13 +210,14 @@ namespace PhysicsGame
             GraphicsDevice.Clear(Color.White);
 
             
-            spriteBatch.Begin(SpriteSortMode.BackToFront,
+            /*spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
                         null,
                         null,
                         null,
                         null,
-                        cam.get_transformation(GraphicsDevice));
+                        cam.get_transformation(GraphicsDevice));*/
+            spriteBatch.Begin();
 
             player1.Draw(gameTime, spriteBatch);
             foreach (Sprite shot in shootList)
@@ -259,11 +262,12 @@ namespace PhysicsGame
             if (shootState == ShootingState.Arrow)
             {
                 ForegroundBatch.DrawString(CourierNew, arrow, new Vector2(10, 10), Color.Red);
+                
             }
             else
             {
                 ForegroundBatch.DrawString(CourierNew, arrow, new Vector2(10, 10), Color.Black);
-
+                
             }
 
 
@@ -297,6 +301,9 @@ namespace PhysicsGame
         private void updateInput()
         {
             bool keyPressed = false;
+
+
+            
             KeyboardState keyState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
 
@@ -362,19 +369,19 @@ namespace PhysicsGame
             if (keyState.IsKeyDown(Keys.Q))
             {
                 shootState = ShootingState.Arrow;
-                cam.Zoom -= 0.1f;
+               // cam.Zoom -= 0.1f;
             }
 
             if (keyState.IsKeyDown(Keys.W))
             {
                 shootState = ShootingState.Ball;
-                cam.Zoom += 0.1f;
+               // cam.Zoom += 0.1f;
             }
 
             if (keyState.IsKeyDown(Keys.E))
             {
                 shootState = ShootingState.Fireball;
-                cam.Rotation += 0.5f;
+                //cam.Rotation += 0.5f;
             }
 
 
@@ -387,7 +394,7 @@ namespace PhysicsGame
                     {
                         case ShootingState.Ball:
                             Sprite ballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 200f, true, 0, 1f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 400f, true, 0, 1f, SpriteEffects.None);
 
 
                             shootList.Add(ballShot);
@@ -397,7 +404,7 @@ namespace PhysicsGame
 
                         case ShootingState.Fireball:
                             Sprite fireballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 250f, true, 0, 1.5f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 450f, true, 0, 1.5f, SpriteEffects.None);
 
 
                             shootList.Add(fireballShot);
@@ -406,7 +413,7 @@ namespace PhysicsGame
 
                         case ShootingState.Arrow:
                             Sprite arrowShot = new Sprite(arrowTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 300f, true, 0, .1f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 500f, true, 0, .1f, SpriteEffects.None);
 
 
 
