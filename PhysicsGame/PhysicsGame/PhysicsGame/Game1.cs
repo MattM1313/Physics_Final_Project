@@ -22,7 +22,7 @@ namespace PhysicsGame
 
 
         //---Player---
-        Sprite player1;
+        Tower player1;
         Texture2D player1Tex;
         //------------
 
@@ -127,8 +127,8 @@ namespace PhysicsGame
             //-----------
 
             player1Tex = Content.Load<Texture2D>("tower");
-            player1 = new Sprite(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (player1Tex.Height/4) ), Vector2.Zero,
-                true, 0, .5f, SpriteEffects.None);
+            player1 = new Tower(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (player1Tex.Height/4) ),
+                 .5f, SpriteEffects.None, 100);
 
 
 
