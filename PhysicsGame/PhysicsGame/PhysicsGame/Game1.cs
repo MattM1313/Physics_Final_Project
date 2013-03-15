@@ -80,7 +80,7 @@ namespace PhysicsGame
             Content.RootDirectory = "Content";
             graphics.PreferredBackBufferHeight = 720;
             graphics.PreferredBackBufferWidth = 1280;
-            graphics.IsFullScreen = true;
+            //graphics.IsFullScreen = true;
 
             IsMouseVisible = true;
         }
@@ -122,10 +122,7 @@ namespace PhysicsGame
             fireballTex = Content.Load<Texture2D>("ball");
             arrowTex = Content.Load<Texture2D>("Arrow");
             
-
-
             //-----------
-
             player1Tex = Content.Load<Texture2D>("tower");
             player1 = new Tower(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (player1Tex.Height/4) ),
                  .5f, SpriteEffects.None, 100);
@@ -303,6 +300,11 @@ namespace PhysicsGame
             
             KeyboardState keyState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+
+               if (keyState.IsKeyDown(Keys.Escape))
+               {
+                   Exit();
+               }
 
             if (keyState.IsKeyDown(Keys.Up)
               || keyState.IsKeyDown(Keys.W)
