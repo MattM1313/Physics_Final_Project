@@ -80,7 +80,7 @@ namespace PhysicsGame
             Content.RootDirectory = "Content";
             graphics.PreferredBackBufferHeight = 720;
             graphics.PreferredBackBufferWidth = 1280;
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = true;
 
             IsMouseVisible = true;
         }
@@ -121,17 +121,14 @@ namespace PhysicsGame
             ballTex = Content.Load<Texture2D>("ball");
             fireballTex = Content.Load<Texture2D>("ball");
             arrowTex = Content.Load<Texture2D>("Arrow");
-            //ball = new Sprite(ballTex, player1.Position, new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))),
-                //true, 0, 1f, SpriteEffects.None);
-
+            
 
 
             //-----------
 
-            player1Tex = Content.Load<Texture2D>("shield2_1");
-            
-            player1 = new Sprite(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2 - (player1Tex.Height / 2)), Vector2.Zero,
-                true, 0, 1f, SpriteEffects.None);
+            player1Tex = Content.Load<Texture2D>("tower");
+            player1 = new Sprite(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (player1Tex.Height/4) ), Vector2.Zero,
+                true, 0, .5f, SpriteEffects.None);
 
 
 
@@ -413,7 +410,7 @@ namespace PhysicsGame
 
                         case ShootingState.Arrow:
                             Sprite arrowShot = new Sprite(arrowTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 500f, true, 0, .1f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 475f, true, 0, .1f, SpriteEffects.None);
 
 
 
