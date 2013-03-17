@@ -21,6 +21,8 @@ namespace PhysicsGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        List<Barrier> barrierList = new List<Barrier>();
+
 
         //---Player---
         Tower tower;
@@ -36,6 +38,8 @@ namespace PhysicsGame
         List<Sprite> shootList = new List<Sprite>();
         float fireDelay = FIRE_DELAY;
         const float FIRE_DELAY = 150f;
+        float barrierDelay = BARRIER_DELAY;
+        const float BARRIER_DELAY = 10000f;
 
         //------------
 
@@ -50,6 +54,7 @@ namespace PhysicsGame
 
 
         MouseState prevMouseState;
+       
         float angle;
 
 
@@ -179,6 +184,7 @@ namespace PhysicsGame
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
           
             fireDelay -= elapsed;
+            barrierDelay -= elapsed;
             Console.WriteLine(elapsed);
 
             player.Update(gameTime);
@@ -228,6 +234,11 @@ namespace PhysicsGame
              //Primitives2D.DrawRectangle(spriteBatch, new Rectangle(0, 0, 50, 50), Color.Black);
 
             tower.Draw(gameTime, spriteBatch);
+            foreach (Barrier b in barrierList)
+            {
+                b.Draw(gameTime, spriteBatch);
+            }
+
             player.Draw(gameTime, spriteBatch);
             foreach (Sprite shot in shootList)
             {
@@ -265,8 +276,10 @@ namespace PhysicsGame
             string ball = "W = CannonBalls";
             string fireball = "E = FireBalls";
 
+            string bd = barrierDelay.ToString();
             string space = "Space to fire";
-           
+
+            ForegroundBatch.DrawString(CourierNew, bd, new Vector2(1200, 10), Color.Black); 
             
             if (shootState == ShootingState.Arrow)
             {
@@ -358,13 +371,17 @@ namespace PhysicsGame
                 //Kick Method
             }
 
+
             if (keyState.IsKeyDown(Keys.RightControl)
              || gamePadState.Buttons.LeftShoulder == ButtonState.Pressed)
-             
             {
-                //Barrier Method
-            }
+                if (barrierDelay <= 0f)
+                {
 
+                    createBarrier();
+                }
+                barrierDelay = BARRIER_DELAY;
+            }
 
             if (!keyPressed)
             {
@@ -405,7 +422,7 @@ namespace PhysicsGame
 
 
 
-            if (keyState.IsKeyDown(Keys.Space))
+            if (currMouseState.LeftButton == ButtonState.Pressed)
             {
                if(fireDelay <= 0f)
                {
@@ -447,6 +464,7 @@ namespace PhysicsGame
                     }
                 }
                 prevMouseState = currMouseState;
+                
                 fireDelay = FIRE_DELAY;
         }
             
@@ -496,6 +514,20 @@ namespace PhysicsGame
 
 
             }
+
+
+
+        }
+
+
+
+
+        private void createBarrier()
+        {
+
+            Barrier barrier = new Barrier(Content.Load<Texture2D>("barrier"), player.Position, Vector2.Zero, true, 0f, 1f, SpriteEffects.None, 1f, 20);
+            
+            barrierList.Add(barrier);
 
 
 
