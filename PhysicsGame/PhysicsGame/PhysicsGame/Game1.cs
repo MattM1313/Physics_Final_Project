@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using SpriteClasses;
 
+
 namespace PhysicsGame
 {
     /// <summary>
@@ -22,8 +23,10 @@ namespace PhysicsGame
 
 
         //---Player---
-        Tower player1;
-        Texture2D player1Tex;
+        Tower tower;
+        Player player;
+        Texture2D towerTex;
+        Texture2D playerTex;
         //------------
 
         //--Shooting--
@@ -123,9 +126,14 @@ namespace PhysicsGame
             arrowTex = Content.Load<Texture2D>("Arrow");
             
             //-----------
-            player1Tex = Content.Load<Texture2D>("tower");
-            player1 = new Tower(player1Tex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (player1Tex.Height/4) ),
+            towerTex = Content.Load<Texture2D>("tower");
+            tower = new Tower(towerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (towerTex.Height/4) ),
                  .5f, SpriteEffects.None, 100);
+            playerTex = Content.Load<Texture2D>("player");
+
+
+            player = new Player(playerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 29), new Vector2(0, 0), true,
+                0f, 1f, SpriteEffects.None, new Vector2(50, 50), new Vector2(0, 0), new Vector2(1, 0), 1f, 10, 0, 5);
 
 
 
@@ -173,6 +181,8 @@ namespace PhysicsGame
             fireDelay -= elapsed;
             Console.WriteLine(elapsed);
 
+            player.Update(gameTime);
+
             for (int i = 0; i < shootList.Count; i++)
             {
 
@@ -203,7 +213,7 @@ namespace PhysicsGame
         {
             GraphicsDevice.Clear(Color.White);
 
-            
+           
             /*spriteBatch.Begin(SpriteSortMode.BackToFront,
                         BlendState.AlphaBlend,
                         null,
@@ -213,7 +223,12 @@ namespace PhysicsGame
                         cam.get_transformation(GraphicsDevice));*/
             spriteBatch.Begin();
 
-            player1.Draw(gameTime, spriteBatch);
+           
+
+             //Primitives2D.DrawRectangle(spriteBatch, new Rectangle(0, 0, 50, 50), Color.Black);
+
+            tower.Draw(gameTime, spriteBatch);
+            player.Draw(gameTime, spriteBatch);
             foreach (Sprite shot in shootList)
             {
                 switch (shootState)
@@ -295,57 +310,66 @@ namespace PhysicsGame
         private void updateInput()
         {
             bool keyPressed = false;
+            bool keyPressed2 = false;
 
-
+            player.OriginalVelocity = new Vector2(25);
             
             KeyboardState keyState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+            GamePadState gamePadState2 = GamePad.GetState(PlayerIndex.Two);
 
-               if (keyState.IsKeyDown(Keys.Escape))
+
+               if (keyState.IsKeyDown(Keys.Escape)
+                   || gamePadState.Buttons.Back == ButtonState.Pressed
+                   || gamePadState2.Buttons.Back == ButtonState.Pressed)
                {
                    Exit();
                }
 
-            if (keyState.IsKeyDown(Keys.Up)
-              || keyState.IsKeyDown(Keys.W)
-              || gamePadState.DPad.Up == ButtonState.Pressed
-              || Math.Abs(gamePadState.ThumbSticks.Left.Y) > 0)
-            {
-                //player1.Up();
-                keyPressed = true;
-                cam.Move(new Vector2(0, 3));
-            }
-            if (keyState.IsKeyDown(Keys.Down)
-              || keyState.IsKeyDown(Keys.S)
-              || gamePadState.DPad.Down == ButtonState.Pressed
-              || gamePadState.ThumbSticks.Left.Y < -0.5f)
-            {
-                //player.Down();
-                keyPressed = true;
-                cam.Move(new Vector2(0, -3));
-            }
-            if (keyState.IsKeyDown(Keys.Left)
-              || keyState.IsKeyDown(Keys.A)
-              || gamePadState.DPad.Left == ButtonState.Pressed
-              || gamePadState.ThumbSticks.Left.X < -0.5f)
-            {
-                //player.Left();
-                keyPressed = true;
-                cam.Move(new Vector2(3, 0));
-            }
-            if (keyState.IsKeyDown(Keys.Right)
-              || keyState.IsKeyDown(Keys.D)
-              || gamePadState.DPad.Right == ButtonState.Pressed
-              || gamePadState.ThumbSticks.Left.X > 0.5f)
-            {
-                ///player.Right();
-                keyPressed = true;
-                cam.Move(new Vector2(-3,0));
-            }
-            //if (!keyPressed)
+            //if (keyState.IsKeyDown(Keys.Up)
+            //  || gamePadState.DPad.Up == ButtonState.Pressed
+            //  || Math.Abs(gamePadState.ThumbSticks.Left.Y) > 0)
             //{
-            //    player.Idle();
+            //    //player1.Up();
+            //    keyPressed = true;
+            //    cam.Move(new Vector2(0, 3));
             //}
+            
+            if (keyState.IsKeyDown(Keys.Left)
+                || gamePadState.DPad.Left == ButtonState.Pressed
+                || Math.Abs(gamePadState.ThumbSticks.Left.X) < 0)
+            {
+                
+                player.Left();
+            }
+
+            if (keyState.IsKeyDown(Keys.Right)
+               || gamePadState.DPad.Right == ButtonState.Pressed
+               || Math.Abs(gamePadState.ThumbSticks.Left.X) > 0)
+            {
+                
+                player.Right();
+            }
+
+            if (keyState.IsKeyDown(Keys.RightShift)
+               || gamePadState.Buttons.RightShoulder == ButtonState.Pressed)
+              
+            {
+                //Kick Method
+            }
+
+            if (keyState.IsKeyDown(Keys.RightControl)
+             || gamePadState.Buttons.LeftShoulder == ButtonState.Pressed)
+             
+            {
+                //Barrier Method
+            }
+
+
+            if (!keyPressed)
+            {
+                player.Idle();
+            }
 
             MouseState currMouseState = Mouse.GetState();
 
@@ -354,12 +378,8 @@ namespace PhysicsGame
             {
                 //player.Rotation
                 Vector2 mouseLoc = new Vector2(currMouseState.X, currMouseState.Y);
-
-
-                Vector2 direction = (player1.Position) - mouseLoc;
+                Vector2 direction = (tower.Position) - mouseLoc;
                 angle = (float)(Math.Atan2(-direction.Y, -direction.X));
-
-
                 //player1.Rotation = angle + (float)45.5;
 
 
@@ -392,7 +412,7 @@ namespace PhysicsGame
                     switch (shootState)
                     {
                         case ShootingState.Ball:
-                            Sprite ballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                            Sprite ballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
                                         new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 400f, true, 0, 1f, SpriteEffects.None);
 
 
@@ -402,7 +422,7 @@ namespace PhysicsGame
 
 
                         case ShootingState.Fireball:
-                            Sprite fireballShot = new Sprite(ballTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                            Sprite fireballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
                                         new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 450f, true, 0, 1.5f, SpriteEffects.None);
 
 
@@ -411,7 +431,7 @@ namespace PhysicsGame
                             break;
 
                         case ShootingState.Arrow:
-                            Sprite arrowShot = new Sprite(arrowTex, new Vector2(player1.Position.X - 5, player1.Position.Y),
+                            Sprite arrowShot = new Sprite(arrowTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
                                         new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 475f, true, 0, .1f, SpriteEffects.None);
 
 
