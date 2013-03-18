@@ -39,7 +39,7 @@ namespace PhysicsGame
         float fireDelay = FIRE_DELAY;
         const float FIRE_DELAY = 150f;
         float barrierDelay = BARRIER_DELAY;
-        const float BARRIER_DELAY = 10000f;
+        const float BARRIER_DELAY = 1000f;
 
         //------------
 
@@ -182,12 +182,21 @@ namespace PhysicsGame
             
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-          
+
+            
+                for(int i = 0; i < barrierList.Count; i++){
+                barrierList[i].Health -= 1;
+                if (barrierList[i].Health <= 0)
+                {
+                    barrierList.RemoveAt(i);
+                }
+              } 
+            
             fireDelay -= elapsed;
-            barrierDelay -= elapsed;
+           barrierDelay -= elapsed;
             Console.WriteLine(elapsed);
 
-            player.Update(gameTime);
+            player.Update(gameTime, GraphicsDevice);
 
             for (int i = 0; i < shootList.Count; i++)
             {
@@ -379,10 +388,11 @@ namespace PhysicsGame
                 {
 
                     createBarrier();
+                    barrierDelay = BARRIER_DELAY;
                 }
-                barrierDelay = BARRIER_DELAY;
+              
+ 
             }
-
             if (!keyPressed)
             {
                 player.Idle();
@@ -525,7 +535,7 @@ namespace PhysicsGame
         private void createBarrier()
         {
 
-            Barrier barrier = new Barrier(Content.Load<Texture2D>("barrier"), player.Position, Vector2.Zero, true, 0f, 1f, SpriteEffects.None, 1f, 20);
+            Barrier barrier = new Barrier(Content.Load<Texture2D>("barrier"), player.Position, Vector2.Zero, true, 0f, 1f, SpriteEffects.None, 1f, 100);
             
             barrierList.Add(barrier);
 
