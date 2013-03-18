@@ -142,7 +142,7 @@ namespace PhysicsGame
 
 
             player = new Player(playerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 29), new Vector2(0, 0), true,
-                0f, 1f, SpriteEffects.None, new Vector2(50, 50), new Vector2(0, 0), new Vector2(1, 0), 1f, 10, 0, 5);
+                0f, 1f, SpriteEffects.None, new Vector2(32, 33), new Vector2(0, 0), new Vector2(1, 0), 1f, 10, 0, 5);
 
 
 
@@ -582,7 +582,7 @@ namespace PhysicsGame
             if (spawnDelay <= 0f)
             {
                 Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(50, 0),
-                    true, 0f, 1f, SpriteEffects.None, new Vector2(50, 50), new Vector2(0, 0), new Vector2(1, 0), 1f, 5, 1, 1);
+                    true, 0f, 1f, SpriteEffects.None, new Vector2(48, 48), new Vector2(0, 0), new Vector2(1, 0), 1f, 5, 1, 1);
 
                 enemyList.Add(enemy);
                 spawnDelay = SPAWN_DELAY;
