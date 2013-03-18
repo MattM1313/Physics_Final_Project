@@ -192,22 +192,22 @@ namespace PhysicsGame
                 for (int j = 0; j < enemyList.Count; j++)
                 {
                     enemyList[j].Update(gameTime);
-                    foreach(Barrier b in barrierList)
+                    for(int b = 0; b < barrierList.Count; b++)
                     {
-
-                        if (enemyList[j].CollisionRectangle.Intersects(b.CollisionRectangle))
-                        {
-                            enemyList.RemoveAt(j);
-                            b.Health--;
-                            if (b.Health <= 0)
+                        if (enemyList[j].CollisionRectangle.Intersects(barrierList[b].CollisionRectangle))
                             {
-                                barrierList.Remove(b);
+                            enemyList.RemoveAt(j);
+                            barrierList[b].Health--;
+                            if (barrierList[b].Health <= 0)
+                            {
+                                barrierList.RemoveAt(b);
                                 break;
                             }
+                            break;
                         }
-
+                    }
                         
-                    } 
+                     
                     foreach(Sprite s in shootList)
                     {
                         if (enemyList[j].CollisionRectangle.Intersects(s.CollisionRectangle))
