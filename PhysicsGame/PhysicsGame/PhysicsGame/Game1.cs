@@ -22,6 +22,8 @@ namespace PhysicsGame
         SpriteBatch spriteBatch;
 
         List<Barrier> barrierList = new List<Barrier>();
+        List<Enemy> enemyList = new List<Enemy>();
+        
 
 
         //---Player---
@@ -40,6 +42,8 @@ namespace PhysicsGame
         const float FIRE_DELAY = 150f;
         float barrierDelay = BARRIER_DELAY;
         const float BARRIER_DELAY = 1000f;
+        float spawnDelay = SPAWN_DELAY;
+        const float SPAWN_DELAY = 5000f;
 
         //------------
 
@@ -183,19 +187,33 @@ namespace PhysicsGame
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
-            
-                for(int i = 0; i < barrierList.Count; i++){
-                barrierList[i].Health -= 1;
+
+            for (int i = 0; i < barrierList.Count; i++)
+            {
+
                 if (barrierList[i].Health <= 0)
                 {
                     barrierList.RemoveAt(i);
                 }
-              } 
+
+            }
+                for (int j = 0; j < enemyList.Count; j++)
+                {
+                    enemyList[j].Update(gameTime);
+                    //if(enemyList[j].CollisionSprite(barrierList[i]))
+                    //{
+                    //    enemyList.RemoveAt(j);
+                    //    barrierList[i].Health--;
+                   // }
+
+
+                }
             
             fireDelay -= elapsed;
-           barrierDelay -= elapsed;
-            Console.WriteLine(elapsed);
-
+            barrierDelay -= elapsed;
+            spawnDelay -= elapsed;
+            //Console.WriteLine(elapsed);
+            
             player.Update(gameTime, GraphicsDevice);
 
             for (int i = 0; i < shootList.Count; i++)
@@ -216,6 +234,7 @@ namespace PhysicsGame
 
             updateInput();
             doPhysics();
+            spawnEnemies();
 
             base.Update(gameTime);
         }
@@ -246,6 +265,10 @@ namespace PhysicsGame
             foreach (Barrier b in barrierList)
             {
                 b.Draw(gameTime, spriteBatch);
+            }
+            foreach (Enemy e in enemyList)
+            {
+                e.Draw(gameTime, spriteBatch);
             }
 
             player.Draw(gameTime, spriteBatch);
@@ -541,6 +564,18 @@ namespace PhysicsGame
 
 
 
+        }
+
+        private void spawnEnemies()
+        {
+            if (spawnDelay <= 0f)
+            {
+                Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(15, 0),
+                    true, 0f, 1f, SpriteEffects.None, new Vector2(50, 50), new Vector2(0, 0), new Vector2(1, 0), 1f, 5, 1, 1);
+
+                enemyList.Add(enemy);
+                spawnDelay = SPAWN_DELAY;
+            } 
         }
 
 
