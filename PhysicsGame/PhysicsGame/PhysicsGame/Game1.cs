@@ -43,7 +43,7 @@ namespace PhysicsGame
         float barrierDelay = BARRIER_DELAY;
         const float BARRIER_DELAY = 1000f;
         float spawnDelay = SPAWN_DELAY;
-        const float SPAWN_DELAY = 5000f;
+        const float SPAWN_DELAY = 3000f;
 
         //------------
 
@@ -205,23 +205,19 @@ namespace PhysicsGame
                                 break;
                             }
                         }
-                        
-                        
-                        
-                      
-                        //   
-                        //    Console.WriteLine(barrierList[i].Health);
-                        //    if (barrierList[i].Health <= 0)
-                        //    {
-                        //        barrierList.RemoveAt(i);
-                        //    }
-                        
-                        //}
-                        
 
                         
+                    } 
+                    foreach(Sprite s in shootList)
+                    {
+                        if (enemyList[j].CollisionRectangle.Intersects(s.CollisionRectangle))
+                        {
+                            enemyList.RemoveAt(j);
+                            break;
+
+                        }
                     }
-                }
+                 }
                 
             
             fireDelay -= elapsed;
@@ -585,7 +581,7 @@ namespace PhysicsGame
         {
             if (spawnDelay <= 0f)
             {
-                Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(35, 0),
+                Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(50, 0),
                     true, 0f, 1f, SpriteEffects.None, new Vector2(50, 50), new Vector2(0, 0), new Vector2(1, 0), 1f, 5, 1, 1);
 
                 enemyList.Add(enemy);
