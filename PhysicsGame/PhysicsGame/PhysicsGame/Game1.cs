@@ -188,26 +188,41 @@ namespace PhysicsGame
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
 
 
-            for (int i = 0; i < barrierList.Count; i++)
-            {
-
-                if (barrierList[i].Health <= 0)
-                {
-                    barrierList.RemoveAt(i);
-                }
-
-            }
+           
                 for (int j = 0; j < enemyList.Count; j++)
                 {
                     enemyList[j].Update(gameTime);
-                    //if(enemyList[j].CollisionSprite(barrierList[i]))
-                    //{
-                    //    enemyList.RemoveAt(j);
-                    //    barrierList[i].Health--;
-                   // }
+                    foreach(Barrier b in barrierList)
+                    {
 
+                        if (enemyList[j].CollisionRectangle.Intersects(b.CollisionRectangle))
+                        {
+                            enemyList.RemoveAt(j);
+                            b.Health--;
+                            if (b.Health <= 0)
+                            {
+                                barrierList.Remove(b);
+                                break;
+                            }
+                        }
+                        
+                        
+                        
+                      
+                        //   
+                        //    Console.WriteLine(barrierList[i].Health);
+                        //    if (barrierList[i].Health <= 0)
+                        //    {
+                        //        barrierList.RemoveAt(i);
+                        //    }
+                        
+                        //}
+                        
 
+                        
+                    }
                 }
+                
             
             fireDelay -= elapsed;
             barrierDelay -= elapsed;
@@ -558,7 +573,7 @@ namespace PhysicsGame
         private void createBarrier()
         {
 
-            Barrier barrier = new Barrier(Content.Load<Texture2D>("barrier"), player.Position, Vector2.Zero, true, 0f, 1f, SpriteEffects.None, 1f, 100);
+            Barrier barrier = new Barrier(Content.Load<Texture2D>("barrier"), player.Position, Vector2.Zero, true, 0f, 1f, SpriteEffects.None, 1f, 5);
             
             barrierList.Add(barrier);
 
@@ -570,7 +585,7 @@ namespace PhysicsGame
         {
             if (spawnDelay <= 0f)
             {
-                Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(15, 0),
+                Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(35, 0),
                     true, 0f, 1f, SpriteEffects.None, new Vector2(50, 50), new Vector2(0, 0), new Vector2(1, 0), 1f, 5, 1, 1);
 
                 enemyList.Add(enemy);
