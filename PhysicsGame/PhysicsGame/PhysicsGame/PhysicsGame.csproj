@@ -93,6 +93,10 @@
       <Project>{3E2F8FAB-2EDC-44CE-B28E-D25F2454976A}</Project>
       <Name>SpriteClasses</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\ThePhysics\ThePhysics.csproj">
+      <Project>{3EF0E973-666D-44CE-92BA-8A6FA0C917BF}</Project>
+      <Name>ThePhysics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PhysicsGameContent\PhysicsGameContent.contentproj">
       <Name>PhysicsGameContent</Name>
       <XnaReferenceType>Content</XnaReferenceType>

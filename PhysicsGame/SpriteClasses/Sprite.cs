@@ -39,6 +39,31 @@ namespace SpriteClasses
             get { return velocity; }
             set { velocity = value; }
         }
+
+        //Initial Velocity
+        protected Vector2 initialVelocity;
+        public Vector2 InitialVelocity
+        {
+            get { return initialVelocity; }
+            set { initialVelocity = value; }
+        }
+
+        //Acceleration
+        protected Vector2 acceleration;
+        public Vector2 Acceleration
+        {
+            get { return acceleration; }
+            set { acceleration = value; }
+        }
+
+        //Initial Velocity
+        protected Vector2 force;
+        public Vector2 Force
+        {
+            get { return force; }
+            set { force = value; }
+        }
+
         //velocity set in constructor, needs a 
         //separate property so it doesn't get zeroed
         //when sprite idles
@@ -54,6 +79,8 @@ namespace SpriteClasses
         public float RotationSpeed { get; set; }
         public float Scale { get; set; }
         public SpriteEffects SpriteEffect { get; set; }
+
+        public float Mass { get; set; }
 
         //is he active or not (should he be updated and drawn?)
         public bool Active { get; set; }
@@ -76,6 +103,7 @@ namespace SpriteClasses
             TextureImage = textureImage;
             OriginalVelocity = velocity;
             Velocity = velocity;
+            InitialVelocity = Velocity;
             SetOrigin = setOrigin;
             if (SetOrigin)
             {
