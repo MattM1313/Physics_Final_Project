@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using SpriteClasses;
+using PhysicsMenuSystem;
 
 
 namespace PhysicsGame
@@ -24,7 +25,7 @@ namespace PhysicsGame
         List<Barrier> barrierList = new List<Barrier>();
         List<Enemy> enemyList = new List<Enemy>();
         
-
+        
 
         //---Player---
         Tower tower;
@@ -90,8 +91,8 @@ namespace PhysicsGame
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferHeight = 720;
-            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 600;
+            graphics.PreferredBackBufferWidth = 800;
             //graphics.IsFullScreen = true;
 
             IsMouseVisible = true;
@@ -131,7 +132,7 @@ namespace PhysicsGame
 
             //-----------
             ballTex = Content.Load<Texture2D>("ball");
-            fireballTex = Content.Load<Texture2D>("ball");
+            fireballTex = Content.Load<Texture2D>("ball"); 
             arrowTex = Content.Load<Texture2D>("Arrow");
             
             //-----------
@@ -581,8 +582,8 @@ namespace PhysicsGame
         {
             if (spawnDelay <= 0f)
             {
-                Enemy enemy = new Enemy(Content.Load<Texture2D>("enemy"), new Vector2(0, GraphicsDevice.Viewport.Height - 29), new Vector2(50, 0),
-                    true, 0f, 1f, SpriteEffects.None, new Vector2(48, 48), new Vector2(0, 0), new Vector2(1, 0), 1f, 5, 1, 1);
+                Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), new Vector2(0, GraphicsDevice.Viewport.Height - 55 ), new Vector2(25, 0),
+                    true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0), new Vector2(14, 2), 1f, 5, 1, 1);
 
                 enemyList.Add(enemy);
                 spawnDelay = SPAWN_DELAY;

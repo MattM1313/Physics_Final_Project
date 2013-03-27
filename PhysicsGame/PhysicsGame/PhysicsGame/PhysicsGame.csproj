@@ -89,6 +89,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\PhysicsMenuSystem\PhysicsMenuSystem\PhysicsMenuSystem\PhysicsMenuSystem.csproj">
+      <Project>{7D227FCC-24ED-4B2E-BBC1-84B54AAFC44A}</Project>
+      <Name>PhysicsMenuSystem</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SpriteClasses\SpriteClasses.csproj">
       <Project>{3E2F8FAB-2EDC-44CE-B28E-D25F2454976A}</Project>
       <Name>SpriteClasses</Name>
