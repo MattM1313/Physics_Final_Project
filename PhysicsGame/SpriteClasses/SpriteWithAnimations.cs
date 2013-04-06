@@ -8,19 +8,17 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Net;
-using Microsoft.Xna.Framework.Storage;
 
 namespace SpriteClasses
 {
     public class SpriteWithAnimations : Sprite
     {
-        public AnimationDictionary spriteAnimations = new AnimationDictionary();
+        public Animation SpriteAnimation = new Animation();
 
         // animation version
         public SpriteWithAnimations(Texture2D textureImage, Vector2 position, Vector2 velocity, bool setOrigin,
-            float rotationSpeed, float scale, SpriteEffects spriteEffect)
-            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect)
+            float rotationSpeed, float scale, SpriteEffects spriteEffect, SoundEffect collisionCueName, int scoreValue)
+            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect, collisionCueName, scoreValue)
          {   }
         //keep it on the screen
         public override void Update(GameTime gameTime, GraphicsDevice Device)
@@ -43,16 +41,10 @@ namespace SpriteClasses
         //updates animation and loads next image into TextureImage for drawing
         private void UpdateAndLoadAnimation(GameTime gameTime)
         {
-            if (Active)
-            {
-                //put the current animation into a variable to make it easier to see what's happening
-                Animation currentAnimation = spriteAnimations.animationDictionary[spriteAnimations.CurrentAnimation];
-
-                //update the animation
-                currentAnimation.Update(gameTime);
-                //load the current image
-                TextureImage = currentAnimation.cellList[currentAnimation.CurrentCell];
-            }
+            //update the animation
+            SpriteAnimation.Update(gameTime);
+            //load the current image
+            TextureImage = SpriteAnimation.cellList[SpriteAnimation.CurrentCell];
         }
     }
 }

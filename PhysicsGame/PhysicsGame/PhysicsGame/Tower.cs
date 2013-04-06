@@ -19,7 +19,7 @@ namespace PhysicsGame
 
         public Tower(Texture2D textureImage, Vector2 position,
             float scale, SpriteEffects spriteEffect, int health)
-            : base(textureImage, position, new Vector2(0, 0), true, 0, scale, SpriteEffects.None)
+            : base(textureImage, position, new Vector2(0, 0), true, 0, scale, SpriteEffects.None, null, 0)
         {
 
 

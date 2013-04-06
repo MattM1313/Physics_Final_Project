@@ -98,12 +98,6 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SpriteClasses\SpriteClasses.csproj">
-      <Project>{3E2F8FAB-2EDC-44CE-B28E-D25F2454976A}</Project>
-      <Name>SpriteClasses</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

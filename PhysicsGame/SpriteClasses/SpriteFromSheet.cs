@@ -45,15 +45,15 @@ namespace SpriteClasses
         {
             get
             {
-                return new Rectangle((int)position.X, (int)position.Y, (int)FrameSize.X, (int)FrameSize.Y);
+                return new Rectangle((int)(position.X - SpriteOrigin.X * Scale), (int)(position.Y - SpriteOrigin.Y * Scale), (int)(FrameSize.X * Scale), (int)(FrameSize.Y * Scale));
             }
         }
 
         //sprite sheet version
-        public SpriteFromSheet(Texture2D textureImage, Vector2 position, Vector2 velocity, 
+        public SpriteFromSheet(Texture2D textureImage, Vector2 position, Vector2 velocity,
             bool setOrigin, float rotationSpeed, float scale, SpriteEffects spriteEffect,
-            Vector2 frameSize, Vector2 currentFrame, Vector2 sheetSize, float totalTime)
-            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect)
+            Vector2 frameSize, Vector2 currentFrame, Vector2 sheetSize, float totalTime, SoundEffect collisionCueName, int scoreValue)
+            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect, collisionCueName, scoreValue)
         {
             FrameSize = frameSize;
             CurrentFrame = currentFrame;
@@ -124,10 +124,9 @@ namespace SpriteClasses
                 //call overload to do rotation, basic movement and frame updating
                 Update(gameTime);
                 //keep on screen
-                if (Position.X > Device.Viewport.Width - FrameSize.X + SpriteOrigin.X)
+                if (Position.X > Device.Viewport.Width - (FrameSize.X - SpriteOrigin.X) * Scale)
                 {
-                    //GraphicsDevice.Viewport.Width or Window.ClientBounds.Width will both give us the width of the screen
-                    position.X = Device.Viewport.Width - FrameSize.X + SpriteOrigin.X;
+                    position.X = Device.Viewport.Width - (FrameSize.X - SpriteOrigin.X) * Scale;
                     velocity.X = -Velocity.X;
                 }
                 else if (Position.X < SpriteOrigin.X)
@@ -136,9 +135,9 @@ namespace SpriteClasses
                     velocity.X = -Velocity.X;
                 }
 
-                if (Position.Y > Device.Viewport.Height - FrameSize.Y + SpriteOrigin.Y)
+                if (Position.Y > Device.Viewport.Height - (FrameSize.Y - SpriteOrigin.Y) * Scale)
                 {
-                    position.Y = Device.Viewport.Height - FrameSize.Y + SpriteOrigin.Y;
+                    position.Y = Device.Viewport.Height - (FrameSize.Y - SpriteOrigin.Y) * Scale;
                     velocity.Y = -Velocity.Y;
                 }
                 else if (Position.Y < SpriteOrigin.Y)
@@ -221,16 +220,101 @@ namespace SpriteClasses
             }
         }
 
+        //determine if sprite has gone off screen
         public override bool IsOffScreen(GraphicsDevice Device)
         {
-            if (Position.X < -FrameSize.X ||
-                Position.X > Device.Viewport.Width ||
-                Position.Y < -FrameSize.Y ||
-                Position.Y > Device.Viewport.Height)
+            if (position.X < -((FrameSize.X - SpriteOrigin.X) * Scale) ||
+                position.X > Device.Viewport.Width + (FrameSize.X - SpriteOrigin.X) * Scale ||
+                position.Y < -((FrameSize.Y - SpriteOrigin.Y) * Scale) ||
+                position.Y > Device.Viewport.Height + (FrameSize.Y - SpriteOrigin.Y) * Scale)
             {
                 return true;
             }
             return false;
+        }
+
+        //is there a collision with another sprite?
+        public override bool CollisionSprite(Sprite otherSprite)
+        {
+            //cast the other sprite as a SpriteFromSheet - this method
+            //is coded to work with two spriteFromSheet objects only
+            SpriteFromSheet sprite = (SpriteFromSheet)otherSprite;
+            bool hit = false;
+
+            // Update the passed object's transform
+            // SEQUENCE MATTERS HERE - DO NOT REARRANGE THE ORDER OF THE TRANSFORMATIONS BELOW
+            Matrix spriteTransform =
+                Matrix.CreateTranslation(new Vector3(-sprite.SpriteOrigin, 0.0f)) *
+                Matrix.CreateScale(sprite.Scale) *  //would go here
+                Matrix.CreateRotationZ(sprite.Rotation) *
+                Matrix.CreateTranslation(new Vector3(sprite.Position, 0.0f));
+
+            // Build the calling object's transform
+            // SEQUENCE MATTERS HERE - DO NOT REARRANGE THE ORDER OF THE TRANSFORMATIONS BELOW
+            Matrix thisTransform =
+                Matrix.CreateTranslation(new Vector3(-SpriteOrigin, 0.0f)) *
+                Matrix.CreateScale(Scale) *
+                Matrix.CreateRotationZ(Rotation) *
+                Matrix.CreateTranslation(new Vector3(Position, 0.0f));
+
+            // Calculate the bounding rectangle of the passed object in world space
+            //For the bounding rectangle, can't use CollisionRectangle property because
+            //it adjusts for origin and scale, transform does both of those things for us, so 
+            //we just need a simple bounding rectangle here
+
+            //With transformations, don't use position here for X and Y, the transformation does that for you
+            //also don't scale it or use origin, transformation does those things too          
+            Rectangle spriteRectangle = CalculateBoundingRectangle(
+                     new Rectangle(0, 0, Convert.ToInt32(FrameSize.X), Convert.ToInt32(FrameSize.Y)),
+                     spriteTransform);
+
+            // Calculate the bounding rectangle of the calling object in world space
+            Rectangle thisRectangle = CalculateBoundingRectangle(
+                     new Rectangle(0, 0, Convert.ToInt32(FrameSize.X), Convert.ToInt32(FrameSize.Y)),
+                     thisTransform);
+
+            // The per-pixel check is expensive, so check the bounding rectangles
+            // first to prevent testing pixels when collisions are impossible.
+            if (thisRectangle.Intersects(spriteRectangle))
+            {
+                // The color data for the images; used for per-pixel collision
+                Color[] thisTextureData;        //calling object
+                Color[] spriteTextureData;		//passed object
+
+                // Extract collision data from calling object
+                thisTextureData =
+                    new Color[(int)(FrameSize.X * FrameSize.Y)];
+                //get the rectangle that matches the current frame
+                Rectangle frameRectangle = new Rectangle((int)(CurrentFrame.X * FrameSize.X),
+                    (int)(CurrentFrame.Y * FrameSize.Y), (int)(FrameSize.X), (int)(FrameSize.Y));
+                //get colour data for just that rectangle
+                TextureImage.GetData(0, frameRectangle, thisTextureData, 0,
+                    (int)(FrameSize.X * FrameSize.Y));
+
+                // Extract collision data from passed object
+                spriteTextureData =
+                    new Color[(int)(sprite.FrameSize.X * sprite.FrameSize.Y)];
+                //get the rectangle that matches the current frame
+                Rectangle spriteFrameRectangle = new Rectangle((int)(CurrentFrame.X * FrameSize.X),
+                    (int)(CurrentFrame.Y * FrameSize.Y), (int)(FrameSize.X), (int)(FrameSize.Y));
+                //get colour data for just that rectangle
+                sprite.TextureImage.GetData(0, spriteFrameRectangle, spriteTextureData, 0, 
+                    (int)(FrameSize.X * FrameSize.Y));
+
+                // Check collision at the pixel level
+                if (IntersectPixels(spriteTransform, (int)(sprite.FrameSize.X),
+                        (int)(sprite.FrameSize.Y), spriteTextureData,
+                        thisTransform, (int)(FrameSize.X),
+                        (int)(FrameSize.Y), thisTextureData
+                        ))
+                {
+                    //if per pixel is true, return true from the method
+                    hit = true;
+                }
+            }
+            //this will be false if there was no rectangle collision or if
+            //there was a rectangle collision, but no per pixel collision 
+            return hit;
         }
     }
 }

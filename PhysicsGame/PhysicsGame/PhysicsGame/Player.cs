@@ -44,7 +44,7 @@ namespace PhysicsGame
             int strength,
             float defense
         )
-            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect, frameSize, currentFrame, sheetSize, totalTime)
+            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect, frameSize, currentFrame, sheetSize, totalTime, null, 0)
         {
             Health = health;
             Strength = strength;

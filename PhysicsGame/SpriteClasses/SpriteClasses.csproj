@@ -69,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animation.cs" />
-    <Compile Include="AnimationDictionary.cs" />
+    <Compile Include="BasicParticleSystem.cs" />
     <Compile Include="MultiBackground.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

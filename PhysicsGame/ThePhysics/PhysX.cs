@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using SpriteClasses;
+//using SpriteClasses;
 
 namespace ThePhysics
 {
@@ -48,14 +48,14 @@ namespace ThePhysics
                 totalForce += forceOfFriction;
         }
 
-        public static void updatePosition(Sprite obj, float timeInterval)
-        {
-            obj.Force = totalForce;
-            obj.Acceleration = calculateAcceleration1(obj.Force, obj.Mass);
-            obj.Velocity = calculateVelocity1(obj.InitialVelocity, obj.Acceleration, timeInterval);
-            obj.Position += calculateDisplacement2(obj.InitialVelocity, obj.Acceleration, timeInterval); 
-            obj.InitialVelocity = obj.Velocity; //Resetting velocities
-        }
+        //public static void updatePosition(Sprite obj, float timeInterval)
+        //{
+        //    obj.Force = totalForce;
+        //    obj.Acceleration = calculateAcceleration1(obj.Force, obj.Mass);
+        //    obj.Velocity = calculateVelocity1(obj.InitialVelocity, obj.Acceleration, timeInterval);
+        //    obj.Position += calculateDisplacement2(obj.InitialVelocity, obj.Acceleration, timeInterval); 
+        //    obj.InitialVelocity = obj.Velocity; //Resetting velocities
+        //}
 
         //----------Calcuate Force------------//
         public static Vector2 calculateForce(Vector2 accel, float mass)

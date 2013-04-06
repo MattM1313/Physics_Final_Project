@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using SpriteClasses;
-using PhysicsMenuSystem;
+//using PhysicsMenuSystem;
 
 
 namespace PhysicsGame
@@ -24,8 +24,8 @@ namespace PhysicsGame
 
         List<Barrier> barrierList = new List<Barrier>();
         List<Enemy> enemyList = new List<Enemy>();
-        
-        
+
+        float spawnTime;
 
         //---Player---
         Tower tower;
@@ -37,56 +37,45 @@ namespace PhysicsGame
         //--Shooting--
         //SpriteFromSheet or SpriteWithAnimations
         Texture2D arrowTex, ballTex, fireballTex;
-        Sprite arrow, ball, fireball;
+        //Sprite arrow, ball, fireball;
         List<Sprite> shootList = new List<Sprite>();
         float fireDelay = FIRE_DELAY;
-        const float FIRE_DELAY = 150f;
+        const float FIRE_DELAY = 350f;
+
         float barrierDelay = BARRIER_DELAY;
         const float BARRIER_DELAY = 1000f;
+
         float spawnDelay = SPAWN_DELAY;
         const float SPAWN_DELAY = 3000f;
+        const float SPAWN_DELAY_BIGGER = 2000f;
+        const float SPAWN_DELAY_FASTER = 500f;
 
         //------------
 
 
         //---Camera---
         Camera cam;
-        
         //cam.Pos = new Vector2(500.0f,200.0f);
-
-
         //----------
-
-
+        Random r;
         MouseState prevMouseState;
-       
         float angle;
-
-
+        
         enum ShootingState
         {
             Arrow,
             Ball,
             Fireball
-
         }
-
-
-
+        ShootingState shootState = ShootingState.Ball;
         //-----Font----
         SpriteBatch ForegroundBatch;
         SpriteFont CourierNew;
         Vector2 FontPos;
-        
         //------------
 
-
-
-
-
-        ShootingState shootState = ShootingState.Ball;
         
-
+        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -110,7 +99,7 @@ namespace PhysicsGame
             cam = new Camera();
             cam.Pos = new Vector2(500f, 200f);
 
-
+            r = new Random();
 
 
 
@@ -187,6 +176,7 @@ namespace PhysicsGame
             
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+            
 
 
            
@@ -214,9 +204,11 @@ namespace PhysicsGame
                         if (enemyList[j].CollisionRectangle.Intersects(s.CollisionRectangle))
                         {
                             enemyList.RemoveAt(j);
+                           
                             break;
 
                         }
+                        
                     }
                  }
                 
@@ -224,6 +216,7 @@ namespace PhysicsGame
             fireDelay -= elapsed;
             barrierDelay -= elapsed;
             spawnDelay -= elapsed;
+            spawnTime += elapsed;
             //Console.WriteLine(elapsed);
             
             player.Update(gameTime, GraphicsDevice);
@@ -232,6 +225,10 @@ namespace PhysicsGame
             {
 
                 shootList[i].Update(gameTime);
+                //if (shootList[i].CollisionRectangle.Intersects(enemyList))
+                //{
+                //    shootList.RemoveAt(i);
+                //}
 
 
                 if (shootList[i].Position.Y < 0f || shootList[i].Position.X < 0f || shootList[i].Position.X > graphics.GraphicsDevice.Viewport.Width
@@ -246,8 +243,18 @@ namespace PhysicsGame
 
             updateInput();
             doPhysics();
-            spawnEnemies();
-
+            if (spawnTime <= 20000f)
+            {
+                spawnEnemies();
+            }
+            else if (spawnTime >= 50000f)
+            {
+                spawnBiggerEnemies();
+            }
+            else if (spawnTime >= 20000f && spawnTime <= 50000f)
+            {
+                spawnFasterEnemies();
+            }
             base.Update(gameTime);
         }
 
@@ -320,10 +327,10 @@ namespace PhysicsGame
             string ball = "W = CannonBalls";
             string fireball = "E = FireBalls";
 
-            string bd = barrierDelay.ToString();
+            string bd = spawnTime.ToString();
             string space = "Space to fire";
 
-            ForegroundBatch.DrawString(CourierNew, bd, new Vector2(1200, 10), Color.Black); 
+            ForegroundBatch.DrawString(CourierNew, bd, new Vector2(GraphicsDevice.Viewport.Width - 100, 10), Color.Black); 
             
             if (shootState == ShootingState.Arrow)
             {
@@ -475,7 +482,7 @@ namespace PhysicsGame
                     {
                         case ShootingState.Ball:
                             Sprite ballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 400f, true, 0, 1f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, 1f, SpriteEffects.None, null, 0);
 
 
                             shootList.Add(ballShot);
@@ -485,7 +492,7 @@ namespace PhysicsGame
 
                         case ShootingState.Fireball:
                             Sprite fireballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 450f, true, 0, 1.5f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, 1.5f, SpriteEffects.None, null, 0);
 
 
                             shootList.Add(fireballShot);
@@ -494,7 +501,7 @@ namespace PhysicsGame
 
                         case ShootingState.Arrow:
                             Sprite arrowShot = new Sprite(arrowTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 475f, true, 0, .1f, SpriteEffects.None);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, .1f, SpriteEffects.None, null, 0);
 
 
 
@@ -506,11 +513,11 @@ namespace PhysicsGame
                             shootList.Add(arrowShot);
 
                             break;
-                    }
+                    }fireDelay = FIRE_DELAY;
                 }
                 prevMouseState = currMouseState;
                 
-                fireDelay = FIRE_DELAY;
+                
         }
             
         }//End updateInput
@@ -580,16 +587,218 @@ namespace PhysicsGame
 
         private void spawnEnemies()
         {
-            if (spawnDelay <= 0f)
-            {
-                Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), new Vector2(0, GraphicsDevice.Viewport.Height - 55 ), new Vector2(25, 0),
-                    true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0), new Vector2(14, 2), 1f, 5, 1, 1);
 
-                enemyList.Add(enemy);
-                spawnDelay = SPAWN_DELAY;
+            int pickSide = r.Next(2);
+            Vector2 leftSide = new Vector2(0, GraphicsDevice.Viewport.Height - 55 );
+            Vector2 rightSide = new Vector2(GraphicsDevice.Viewport.Width - 55, GraphicsDevice.Viewport.Height - 55);
+            Vector2 leftSpeed = new Vector2(5, 0);
+            Vector2 rightSpeed = new Vector2(-5, 0);
+
+            
+                    if (spawnDelay <= 0f)
+                    {
+                        switch(pickSide)
+                        {
+                        case 0:
+                                int pickEnemy = r.Next(2);
+                                if (pickEnemy == 0)
+                                {
+
+                                    Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
+                                       leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
+                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy);
+                                    spawnDelay = SPAWN_DELAY;
+                                }
+                                if (pickEnemy == 1)
+                                {
+                                    Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), leftSide,
+                                       leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(100, 100), new Vector2(0, 0),
+                                        new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy);
+                                    spawnDelay = SPAWN_DELAY;
+
+
+
+                                }
+                        break;
+
+                            case 1:
+                                pickEnemy = r.Next(2);
+                                if (pickEnemy == 0)
+                                {
+                                    Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
+                                        true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
+                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy2);
+
+                                    spawnDelay = SPAWN_DELAY;
+                                }
+                                if (pickEnemy == 1)
+                                {
+                                    Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), rightSide, rightSpeed,
+                                        true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(100, 100),
+                                        new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy2);
+
+                                    spawnDelay = SPAWN_DELAY;
+                                }
+                        break;
+
+
+                      
+                        
             } 
         }
+    }
 
+        private void spawnBiggerEnemies()
+        {
+             int pickSide = r.Next(2);
+            Vector2 leftSide = new Vector2(0, GraphicsDevice.Viewport.Height - 55 );
+            Vector2 rightSide = new Vector2(GraphicsDevice.Viewport.Width - 55, GraphicsDevice.Viewport.Height - 55);
+            Vector2 leftSpeed = new Vector2(10, 0);
+            Vector2 rightSpeed = new Vector2(-10, 0);
+
+            
+                    if (spawnDelay <= 0f)
+                    {
+                        switch(pickSide)
+                        {
+                        case 0:
+                                int pickEnemy = r.Next(2);
+                                if (pickEnemy == 0)
+                                {
+
+                                    Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
+                                       leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
+                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy);
+                                    spawnDelay = SPAWN_DELAY_BIGGER;
+                                }
+                                if (pickEnemy == 1)
+                                {
+                                    Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), leftSide,
+                                       leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(100, 100), new Vector2(0, 0),
+                                        new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy);
+                                    spawnDelay = SPAWN_DELAY_BIGGER;
+
+
+
+                                }
+                        break;
+
+                            case 1:
+                                pickEnemy = r.Next(2);
+                                if (pickEnemy == 0)
+                                {
+                                    Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
+                                        true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
+                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy2);
+
+                                    spawnDelay = SPAWN_DELAY_BIGGER;
+                                }
+                                if (pickEnemy == 1)
+                                {
+                                    Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), rightSide, rightSpeed,
+                                        true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(100, 100),
+                                        new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+
+                                    enemyList.Add(enemy2);
+
+                                    spawnDelay = SPAWN_DELAY_BIGGER;
+                                }
+                        break;
+
+
+                      
+                        
+            } 
+        }
+    
+
+        }
+
+        private void spawnFasterEnemies()
+        {
+            int pickSide = r.Next(2);
+            Vector2 leftSide = new Vector2(0, GraphicsDevice.Viewport.Height - 55);
+            Vector2 rightSide = new Vector2(GraphicsDevice.Viewport.Width - 55, GraphicsDevice.Viewport.Height - 55);
+            Vector2 leftSpeed = new Vector2(20, 0);
+            Vector2 rightSpeed = new Vector2(-20, 0);
+
+
+            if (spawnDelay <= 0f)
+            {
+                switch (pickSide)
+                {
+                    case 0:
+                        int pickEnemy = r.Next(2);
+                        if (pickEnemy == 0)
+                        {
+
+                            Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
+                               leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
+                                new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+
+                            enemyList.Add(enemy);
+                            spawnDelay = SPAWN_DELAY_FASTER;
+                        }
+                        if (pickEnemy == 1)
+                        {
+                            Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), leftSide,
+                               leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(100, 100), new Vector2(0, 0),
+                                new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+
+                            enemyList.Add(enemy);
+                            spawnDelay = SPAWN_DELAY_FASTER;
+
+
+
+                        }
+                        break;
+
+                    case 1:
+                        pickEnemy = r.Next(2);
+                        if (pickEnemy == 0)
+                        {
+                            Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
+                                true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
+                                new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+
+                            enemyList.Add(enemy2);
+
+                            spawnDelay = SPAWN_DELAY_FASTER;
+                        }
+                        if (pickEnemy == 1)
+                        {
+                            Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), rightSide, rightSpeed,
+                                true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(100, 100),
+                                new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+
+                            enemyList.Add(enemy2);
+
+                            spawnDelay = SPAWN_DELAY_FASTER;
+                        }
+                        break;
+
+
+
+
+                }
+            }
+
+
+        }
 
     }//End Class
 }

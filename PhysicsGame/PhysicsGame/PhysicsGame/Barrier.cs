@@ -27,7 +27,7 @@ namespace PhysicsGame
             float totalTime,
             int health
         )
-            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect)
+            : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect, null, 0)
         {
             Health = health;
         }
