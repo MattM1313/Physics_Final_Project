@@ -60,6 +60,9 @@ namespace PhysicsGame
         Random r;
         MouseState prevMouseState;
         float angle;
+
+        MultiBackground back;
+        Texture2D b1, b2, b3;
         
         enum ShootingState
         {
@@ -80,8 +83,8 @@ namespace PhysicsGame
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            graphics.PreferredBackBufferHeight = 600;
-            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 1280;
             //graphics.IsFullScreen = true;
 
             IsMouseVisible = true;
@@ -121,20 +124,20 @@ namespace PhysicsGame
 
             //-----------
             ballTex = Content.Load<Texture2D>("ball");
-            fireballTex = Content.Load<Texture2D>("ball"); 
-            arrowTex = Content.Load<Texture2D>("Arrow");
+            fireballTex = Content.Load<Texture2D>("ball");
+            arrowTex = Content.Load<Texture2D>("physics_arrow");
             
             //-----------
-            towerTex = Content.Load<Texture2D>("tower");
-            tower = new Tower(towerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height  - (towerTex.Height/4) ),
+            towerTex = Content.Load<Texture2D>("physics_tower");
+            tower = new Tower(towerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 254 ),
                  .5f, SpriteEffects.None, 100);
-            playerTex = Content.Load<Texture2D>("player");
+            playerTex = Content.Load<Texture2D>("physics_triangle");
 
 
-            player = new Player(playerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 29), new Vector2(0, 0), true,
-                0f, 1f, SpriteEffects.None, new Vector2(32, 33), new Vector2(0, 0), new Vector2(1, 0), 1f, 10, 0, 5);
+            player = new Player(playerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 60), new Vector2(0, 0), true,
+                0f, 0.5f, SpriteEffects.None, new Vector2(178, 113), new Vector2(0, 0), new Vector2(1, 1), 1f, 10, 0, 5);
 
-
+           
 
             //-----Font--------------
             CourierNew = Content.Load<SpriteFont>("Courrier");
@@ -147,7 +150,17 @@ namespace PhysicsGame
 
             //-----------------------
 
+            b1 = Content.Load<Texture2D>("back/physics_sky");
+            b2 = Content.Load<Texture2D>("back/physics_hills");
+            b3 = Content.Load<Texture2D>("back/physics_ground");
 
+            back = new MultiBackground(GraphicsDevice);
+            back.AddLayer(b1, 2, 10);
+            //back.AddLayer(b2, 1, 20);
+            //back.AddLayer(b3, 0, 30);
+            back.SetMoveLeftRight();
+            back.StartMoving();
+            
 
 
 
@@ -173,7 +186,7 @@ namespace PhysicsGame
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-            
+            back.Update(gameTime);
 
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             
@@ -279,6 +292,11 @@ namespace PhysicsGame
            
 
              //Primitives2D.DrawRectangle(spriteBatch, new Rectangle(0, 0, 50, 50), Color.Black);
+            back.Draw();
+            
+            spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
+            spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
+            //spriteBatch.DrawRectangle(new Rectangle(0, 0, 1280, 720), Color.Black);
 
             tower.Draw(gameTime, spriteBatch);
             foreach (Barrier b in barrierList)
@@ -376,7 +394,7 @@ namespace PhysicsGame
             bool keyPressed = false;
             bool keyPressed2 = false;
 
-            player.OriginalVelocity = new Vector2(25);
+            player.OriginalVelocity = new Vector2(2);
             
             KeyboardState keyState = Keyboard.GetState();
             GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
@@ -501,7 +519,7 @@ namespace PhysicsGame
 
                         case ShootingState.Arrow:
                             Sprite arrowShot = new Sprite(arrowTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, .1f, SpriteEffects.None, null, 0);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 125f, true, 0, 1f, SpriteEffects.None, null, 0);
 
 
 
@@ -577,7 +595,7 @@ namespace PhysicsGame
         private void createBarrier()
         {
 
-            Barrier barrier = new Barrier(Content.Load<Texture2D>("barrier"), player.Position, Vector2.Zero, true, 0f, 1f, SpriteEffects.None, 1f, 5);
+            Barrier barrier = new Barrier(Content.Load<Texture2D>("physics_barrier"), player.Position, Vector2.Zero, true, 0f, 0.5f, SpriteEffects.None, 1f, 5);
             
             barrierList.Add(barrier);
 

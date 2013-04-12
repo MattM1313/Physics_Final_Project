@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-//using SpriteClasses;
+using SpriteClasses;
 
 namespace ThePhysics
 {
@@ -52,9 +52,9 @@ namespace ThePhysics
         //{
         //    obj.Force = totalForce;
         //    obj.Acceleration = calculateAcceleration1(obj.Force, obj.Mass);
-        //    obj.Velocity = calculateVelocity1(obj.InitialVelocity, obj.Acceleration, timeInterval);
-        //    obj.Position += calculateDisplacement2(obj.InitialVelocity, obj.Acceleration, timeInterval); 
-        //    obj.InitialVelocity = obj.Velocity; //Resetting velocities
+        //    obj.Velocity = calculateVelocity1(obj.InitialVeloctiy, obj.Acceleration, timeInterval);
+        //    obj.Position += calculateDisplacement2(obj.InitialVeloctiy, obj.Acceleration, timeInterval);
+        //    obj.InitialVeloctiy = obj.Velocity; //Resetting velocities
         //}
 
         //----------Calcuate Force------------//
