@@ -24,7 +24,12 @@ namespace PhysicsGame
 
         List<Barrier> barrierList = new List<Barrier>();
         List<Enemy> enemyList = new List<Enemy>();
+        enum GameState
+        {
+            menu, options, win, lose, game
 
+        }
+        GameState currGameState = GameState.menu;
         float spawnTime;
 
         //---Player---
@@ -186,8 +191,25 @@ namespace PhysicsGame
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
+            switch(currGameState)
+            {
+                case GameState.menu:
+            #region menu
             back.Update(gameTime);
+            //menu update
 
+
+
+
+
+
+
+
+
+            #endregion
+            break;
+                case GameState.game:
+            #region game
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             
 
@@ -268,6 +290,10 @@ namespace PhysicsGame
             {
                 spawnFasterEnemies();
             }
+
+            #endregion
+            break;
+        }
             base.Update(gameTime);
         }
 
@@ -278,25 +304,32 @@ namespace PhysicsGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
+            switch(currGameState)
+            {
+                case GameState.menu:
+            #region menuDraw
+            spriteBatch.Begin();
+            back.Draw();  
+            spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
+            spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
+            tower.Draw(gameTime, spriteBatch);
+            spriteBatch.End();
+            #endregion
+                    break;
+                case GameState.game:
 
-           
-            /*spriteBatch.Begin(SpriteSortMode.BackToFront,
-                        BlendState.AlphaBlend,
-                        null,
-                        null,
-                        null,
-                        null,
-                        cam.get_transformation(GraphicsDevice));*/
+            #region GameDraw
+            
             spriteBatch.Begin();
 
            
 
-             //Primitives2D.DrawRectangle(spriteBatch, new Rectangle(0, 0, 50, 50), Color.Black);
-            back.Draw();
+            
+           // back.Draw();
             
             spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
             spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
-            //spriteBatch.DrawRectangle(new Rectangle(0, 0, 1280, 720), Color.Black);
+            
 
             tower.Draw(gameTime, spriteBatch);
             foreach (Barrier b in barrierList)
@@ -382,8 +415,17 @@ namespace PhysicsGame
 
             ForegroundBatch.DrawString(CourierNew, space, new Vector2(10, 400), c);
             ForegroundBatch.End();
-
-
+#endregion
+                    break;
+                case GameState.options:
+            #region optionsDraw
+            #endregion
+                    break;
+                case GameState.win:
+            #region WinDraw
+            #endregion
+                    break;
+        }
 
 
             base.Draw(gameTime);
@@ -534,10 +576,11 @@ namespace PhysicsGame
                     }fireDelay = FIRE_DELAY;
                 }
                 prevMouseState = currMouseState;
-                
-                
-        }
-            
+
+
+            }
+           
+
         }//End updateInput
 
         private void doPhysics()
