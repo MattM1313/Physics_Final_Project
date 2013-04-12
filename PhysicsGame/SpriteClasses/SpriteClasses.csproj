@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Animation.cs" />
     <Compile Include="BasicParticleSystem.cs" />
+    <Compile Include="Menu.cs" />
     <Compile Include="MultiBackground.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

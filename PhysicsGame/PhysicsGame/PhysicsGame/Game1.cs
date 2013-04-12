@@ -78,10 +78,12 @@ namespace PhysicsGame
         ShootingState shootState = ShootingState.Ball;
         //-----Font----
         SpriteBatch ForegroundBatch;
-        SpriteFont CourierNew;
+        SpriteFont Font;
         Vector2 FontPos;
         //------------
-
+        // menu
+        Menu mainMenu;
+        Texture2D menuLogo;
         
         
         public Game1()
@@ -145,7 +147,7 @@ namespace PhysicsGame
            
 
             //-----Font--------------
-            CourierNew = Content.Load<SpriteFont>("Courrier");
+            Font = Content.Load<SpriteFont>("Courrier");
             ForegroundBatch = new SpriteBatch(graphics.GraphicsDevice);
             FontPos = new Vector2(graphics.GraphicsDevice.Viewport.Width / 2, 
                 graphics.GraphicsDevice.Viewport.Height / 2);
@@ -166,8 +168,10 @@ namespace PhysicsGame
             back.SetMoveLeftRight();
             back.StartMoving();
             
-
-
+            //menu
+            string[] menuItems = { "Play", "Options", "Exit" };
+            mainMenu = new Menu(GraphicsDevice, Font, menuItems);
+            menuLogo = Content.Load<Texture2D>("PhysicsLogo");
 
 
         }
@@ -197,15 +201,20 @@ namespace PhysicsGame
             #region menu
             back.Update(gameTime);
             //menu update
-
-
-
-
-
-
-
-
-
+            mainMenu.Update();
+            if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+            {
+                if (mainMenu.SelectedIndex == 0)
+                {
+                    currGameState = GameState.game;
+                }
+                else if (mainMenu.SelectedIndex == 1)
+                {
+                    currGameState = GameState.options;
+                }
+                else
+                    Exit();
+            }
             #endregion
             break;
                 case GameState.game:
@@ -313,6 +322,8 @@ namespace PhysicsGame
             spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
             spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
             tower.Draw(gameTime, spriteBatch);
+            mainMenu.Draw(spriteBatch);
+            spriteBatch.Draw(menuLogo, new Vector2(60, GraphicsDevice.Viewport.Height * 0.33f), Color.White);
             spriteBatch.End();
             #endregion
                     break;
@@ -381,39 +392,39 @@ namespace PhysicsGame
             string bd = spawnTime.ToString();
             string space = "Space to fire";
 
-            ForegroundBatch.DrawString(CourierNew, bd, new Vector2(GraphicsDevice.Viewport.Width - 100, 10), Color.Black); 
+            ForegroundBatch.DrawString(Font, bd, new Vector2(GraphicsDevice.Viewport.Width - 100, 10), Color.Black); 
             
             if (shootState == ShootingState.Arrow)
             {
-                ForegroundBatch.DrawString(CourierNew, arrow, new Vector2(10, 10), Color.Red);
+                ForegroundBatch.DrawString(Font, arrow, new Vector2(10, 10), Color.Red);
                 
             }
             else
             {
-                ForegroundBatch.DrawString(CourierNew, arrow, new Vector2(10, 10), Color.Black);
+                ForegroundBatch.DrawString(Font, arrow, new Vector2(10, 10), Color.Black);
                 
             }
 
 
             if (shootState == ShootingState.Ball)
             {
-                ForegroundBatch.DrawString(CourierNew, ball, new Vector2(10, 30), Color.Red);
+                ForegroundBatch.DrawString(Font, ball, new Vector2(10, 30), Color.Red);
             }
             else
             {
-                ForegroundBatch.DrawString(CourierNew, ball, new Vector2(10, 30), Color.Black);
+                ForegroundBatch.DrawString(Font, ball, new Vector2(10, 30), Color.Black);
             }
 
             if (shootState == ShootingState.Fireball)
             {
-                ForegroundBatch.DrawString(CourierNew, fireball, new Vector2(10, 50), Color.Red);
+                ForegroundBatch.DrawString(Font, fireball, new Vector2(10, 50), Color.Red);
             }
             else
             {
-                ForegroundBatch.DrawString(CourierNew, fireball, new Vector2(10, 50), Color.Black);
+                ForegroundBatch.DrawString(Font, fireball, new Vector2(10, 50), Color.Black);
             }
 
-            ForegroundBatch.DrawString(CourierNew, space, new Vector2(10, 400), c);
+            ForegroundBatch.DrawString(Font, space, new Vector2(10, 400), c);
             ForegroundBatch.End();
 #endregion
                     break;

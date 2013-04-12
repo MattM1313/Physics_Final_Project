@@ -2,21 +2,22 @@ Content\shield2_1.xnb
 Content\ball.xnb
 Content\Arrow.xnb
 Content\Bow.xnb
-Content\Courrier.xnb
 Content\player.xnb
 Content\barrier.xnb
 Content\enemy.xnb
-Content\Enemy\angry_square.xnb
 Content\Enemy\circle.xnb
+Content\Enemy\angry_square.xnb
 Content\back\physics_ground.xnb
 Content\back\physics_hills.xnb
 Content\back\physics_sky.xnb
 Content\tower.xnb
 Content\physics_arrow.xnb
+Content\physics_tower.xnb
+Content\physics_barrier.xnb
+Content\physics_triangle.xnb
+Content\Courrier.xnb
 Content\Audio\Arrow-SoundBible.com-1760405458.xnb
 Content\Audio\Bow_Fire_Arrow-Stephan_Schutze-2133929391.xnb
 Content\Audio\flyby-Conor-1500306612.xnb
 Content\Audio\Nature Ambiance-SoundBible.com-1444637890.xnb
-Content\physics_tower.xnb
-Content\physics_barrier.xnb
-Content\physics_triangle.xnb
+Content\PhysicsLogo.xnb
