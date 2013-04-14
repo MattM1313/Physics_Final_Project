@@ -22,6 +22,8 @@ namespace PhysicsGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        double timeSuvived;
+
         List<Barrier> barrierList = new List<Barrier>();
         List<Enemy> enemyList = new List<Enemy>();
         enum GameState
@@ -64,6 +66,7 @@ namespace PhysicsGame
         //----------
         Random r;
         MouseState prevMouseState;
+        KeyboardState prevKeyState;
         float angle;
 
         MultiBackground back;
@@ -83,6 +86,7 @@ namespace PhysicsGame
         //------------
         // menu
         Menu mainMenu;
+        Menu optionsMenu;
         Texture2D menuLogo;
         
         
@@ -173,6 +177,11 @@ namespace PhysicsGame
             mainMenu = new Menu(GraphicsDevice, Font, menuItems);
             menuLogo = Content.Load<Texture2D>("PhysicsLogo");
 
+            //optionsMenu
+            string[] menuItems2 = { "Back" };
+            optionsMenu = new Menu(GraphicsDevice, Font, menuItems2);
+            menuLogo = Content.Load<Texture2D>("PhysicsLogo");
+
 
         }
 
@@ -192,6 +201,7 @@ namespace PhysicsGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            KeyboardState keyState2 = Keyboard.GetState();
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
@@ -208,18 +218,22 @@ namespace PhysicsGame
                 {
                     currGameState = GameState.game;
                 }
-                else if (mainMenu.SelectedIndex == 1)
+                else if (mainMenu.SelectedIndex == 1 && (prevKeyState != keyState2))
                 {
                     currGameState = GameState.options;
                 }
-                else
+                else if(mainMenu.SelectedIndex == 2)
                     Exit();
             }
+            prevKeyState = keyState2;
             #endregion
             break;
                 case GameState.game:
             #region game
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+           double time= gameTime.ElapsedGameTime.TotalSeconds;
+           
+           
 
             back.Update(gameTime);
 
@@ -304,7 +318,10 @@ namespace PhysicsGame
             barrierDelay -= elapsed;
             spawnDelay -= elapsed;
             spawnTime += elapsed;
-            //Console.WriteLine(elapsed);
+            timeSuvived += time;
+           
+
+            
             
             player.Update(gameTime, GraphicsDevice);
 
@@ -343,14 +360,36 @@ namespace PhysicsGame
             {
                 spawnFasterEnemies();
             }
-            else if (spawnTime > 60000f)
+            if (spawnTime > 10000f)
             {
-                spawnTime = 0f;
+                spawnEnemies();
+                spawnFasterEnemies();
+                spawnBiggerEnemies();
             }
 
             #endregion
             break;
-        }
+            #region options
+                case GameState.options:
+            //menu update
+            mainMenu.Update();
+            back.Update(gameTime);
+            player.Update(gameTime);
+            if (keyState2.IsKeyDown(Keys.Enter))
+            {
+                if (optionsMenu.SelectedIndex == 0 && (prevKeyState != keyState2))
+                {
+                    currGameState = GameState.menu;
+                }
+                
+            }
+            prevKeyState = keyState2;
+
+
+
+            break;
+            }
+                #endregion
             base.Update(gameTime);
         }
 
@@ -429,12 +468,15 @@ namespace PhysicsGame
                
             // Draw instructions
             Color c = new Color(0, 0, 0);
-           
 
-            string bd = tower.Health.ToString();
+          
+            string bd = "Health: " + tower.Health.ToString();
+            string time = "Time: " + timeSuvived.ToString();
             
 
-            ForegroundBatch.DrawString(Font, bd, new Vector2(GraphicsDevice.Viewport.Width - 100, 10), Color.Black); 
+            ForegroundBatch.DrawString(Font, bd, new Vector2(0, 10), Color.Black);
+
+            ForegroundBatch.DrawString(Font, time, new Vector2(0, 50), Color.Black);
             
             
 
@@ -444,6 +486,33 @@ namespace PhysicsGame
                     break;
                 case GameState.options:
             #region optionsDraw
+                    spriteBatch.Begin(); 
+                    back.Draw();  
+                    spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
+                    spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
+                    tower.Draw(gameTime, spriteBatch);
+                    optionsMenu.Draw(spriteBatch);
+                    spriteBatch.DrawString(Font, "Arrow Keys to Move", new Vector2(200, 457), Color.White);
+                   
+                    //Sprite p1 = new Sprite(Content.Load<Texture2D>("physics_triangle"), new Vector2(200, 457), Vector2.Zero, true, 0, 0.5f, SpriteEffects.None, null, 0);
+                    //p1.Draw(gameTime, spriteBatch);
+                    player.Position = new Vector2(450, 457);
+                    player.Draw(gameTime, spriteBatch);
+
+                    Sprite p1 = new Sprite(Content.Load<Texture2D>("physics_arrow"), new Vector2(200, 490), Vector2.Zero, true, 0, 0.5f, SpriteEffects.None, null, 0);
+                    p1.Rotation = 45.55f;
+                    p1.Position = new Vector2(450, 500);
+                    p1.Draw(gameTime, spriteBatch);
+
+                    Sprite barrier = new Sprite(Content.Load<Texture2D>("physics_barrier"), new Vector2(480, 530), Vector2.Zero, true, 0, 0.4f, SpriteEffects.None, null, 0);
+                    barrier.Draw(gameTime, spriteBatch);
+                    
+                    spriteBatch.DrawString(Font, "Mouse to Shoot", new Vector2(200, 490), Color.White);
+                    spriteBatch.DrawString(Font, "Ctrl to Place Barrier", new Vector2(200, 520), Color.White);
+                    spriteBatch.Draw(menuLogo, new Vector2(60, GraphicsDevice.Viewport.Height * 0.33f), Color.White);
+
+                    spriteBatch.End();
+
             #endregion
                     break;
                 case GameState.win:
@@ -470,13 +539,19 @@ namespace PhysicsGame
 
             player.Draw(gameTime, spriteBatch);
 
-
+            string endTime = "You Survived " + timeSuvived.ToString() + " Seconds";
 
             spriteBatch.Draw(Content.Load<Texture2D>("greyBack"), new Rectangle(0, 0, 1280, 722), Color.White);
 
                     spriteBatch.DrawString(Font, "Game Over", new Vector2(GraphicsDevice.Viewport.Width/2 - Font.MeasureString("Game Over").X/2,
-                        GraphicsDevice.Viewport.Height / 2 - Font.MeasureString("Game Over").Y), Color.White);
-            spriteBatch.End();
+                        GraphicsDevice.Viewport.Height / 2 - Font.MeasureString("Game Over").Y - 100), Color.White);
+
+                    spriteBatch.DrawString(Font, endTime, new Vector2(GraphicsDevice.Viewport.Width / 2 - Font.MeasureString(endTime).X / 2,
+                        GraphicsDevice.Viewport.Height / 2 - Font.MeasureString(endTime).Y), Color.White);
+            
+                        
+                        
+                        spriteBatch.End();
 
 
             #endregion
