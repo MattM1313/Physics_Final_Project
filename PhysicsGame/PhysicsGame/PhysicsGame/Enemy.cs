@@ -33,6 +33,14 @@ namespace PhysicsGame
             get { return defense; }
             set { defense = value; }
         }
+        protected bool hasHit;
+        public bool HasHit
+        {
+            get { return hasHit; }
+            set { hasHit = value; }
+        }
+
+
         public Enemy(
             Texture2D textureImage,
             Vector2 position,
@@ -49,13 +57,16 @@ namespace PhysicsGame
             int scoreValue,
             int health,
             int strength,
-            float defense
+            float defense,
+            bool hasHit
         )
             : base(textureImage, position, velocity, setOrigin, rotationSpeed, scale, spriteEffect, frameSize, currentFrame, sheetSize, totalTime, collisionCueName, scoreValue )
         {
             Health = health;
             Strength = strength;
             Defense = defense;
+            HasHit = hasHit;
+
         }
     }
 }

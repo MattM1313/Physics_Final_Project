@@ -45,7 +45,7 @@ namespace PhysicsGame
         //Sprite arrow, ball, fireball;
         List<Sprite> shootList = new List<Sprite>();
         float fireDelay = FIRE_DELAY;
-        const float FIRE_DELAY = 350f;
+        const float FIRE_DELAY = 550f;
 
         float barrierDelay = BARRIER_DELAY;
         const float BARRIER_DELAY = 1000f;
@@ -75,7 +75,7 @@ namespace PhysicsGame
             Ball,
             Fireball
         }
-        ShootingState shootState = ShootingState.Ball;
+        ShootingState shootState = ShootingState.Arrow;
         //-----Font----
         SpriteBatch ForegroundBatch;
         SpriteFont Font;
@@ -220,8 +220,8 @@ namespace PhysicsGame
                 case GameState.game:
             #region game
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-            
 
+            back.Update(gameTime);
 
            
                 for (int j = 0; j < enemyList.Count; j++)
@@ -233,6 +233,11 @@ namespace PhysicsGame
                             {
                             enemyList.RemoveAt(j);
                             barrierList[b].Health--;
+                            if (barrierList[b].Health <= 3)
+                            {
+                                barrierList[b].TextureImage = Content.Load<Texture2D>("physics_barrier1");
+                            }
+                            
                             if (barrierList[b].Health <= 0)
                             {
                                 barrierList.RemoveAt(b);
@@ -241,20 +246,58 @@ namespace PhysicsGame
                             break;
                         }
                     }
-                        
-                     
-                    foreach(Sprite s in shootList)
+                    for (int e = 0; e < shootList.Count; e++)
                     {
-                        if (enemyList[j].CollisionRectangle.Intersects(s.CollisionRectangle))
+                        if (enemyList[j].CollisionRectangle.Intersects(shootList[e].CollisionRectangle))
                         {
+                            shootList.RemoveAt(e);
                             enemyList.RemoveAt(j);
-                           
+                            break;
+                        }
+                        break;
+
+                    }
+                  
+                }
+
+                foreach (Enemy e in enemyList)
+                {
+                    if (tower.CollisionRectangle.Intersects(e.CollisionRectangle))
+                    {
+
+                        if (e.HasHit == false)
+                        {
+                            tower.Health = tower.Health - 1;
+                            e.HasHit = true;
                             break;
 
                         }
-                        
+
                     }
-                 }
+
+                }
+
+                if (tower.Health < 80)
+                {
+                    tower.TextureImage = Content.Load<Texture2D>("physics_tower1");
+                }
+                if (tower.Health < 60)
+                {
+                    tower.TextureImage = Content.Load<Texture2D>("physics_tower2");
+                }
+                if (tower.Health < 40)
+                {
+                    tower.TextureImage = Content.Load<Texture2D>("physics_tower3");
+                }
+                if (tower.Health < 20)
+                {
+                    tower.TextureImage = Content.Load<Texture2D>("physics_tower4");
+                }
+                if (tower.Health <= 0)
+                {
+                    currGameState = GameState.lose;
+                }
+
                 
             
             fireDelay -= elapsed;
@@ -269,12 +312,13 @@ namespace PhysicsGame
             {
 
                 shootList[i].Update(gameTime);
-                //if (shootList[i].CollisionRectangle.Intersects(enemyList))
-                //{
-                //    shootList.RemoveAt(i);
-                //}
-
-
+                
+           
+               
+                
+                
+                
+                
                 if (shootList[i].Position.Y < 0f || shootList[i].Position.X < 0f || shootList[i].Position.X > graphics.GraphicsDevice.Viewport.Width
                 || shootList[i].Position.Y > graphics.GraphicsDevice.Viewport.Height)
                 {
@@ -298,6 +342,10 @@ namespace PhysicsGame
             else if (spawnTime >= 20000f && spawnTime <= 50000f)
             {
                 spawnFasterEnemies();
+            }
+            else if (spawnTime > 60000f)
+            {
+                spawnTime = 0f;
             }
 
             #endregion
@@ -332,12 +380,8 @@ namespace PhysicsGame
             #region GameDraw
             
             spriteBatch.Begin();
-
-           
-
             
-           // back.Draw();
-            
+            back.Draw();
             spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
             spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
             
@@ -389,7 +433,7 @@ namespace PhysicsGame
             string ball = "W = CannonBalls";
             string fireball = "E = FireBalls";
 
-            string bd = spawnTime.ToString();
+            string bd = tower.Health.ToString();
             string space = "Space to fire";
 
             ForegroundBatch.DrawString(Font, bd, new Vector2(GraphicsDevice.Viewport.Width - 100, 10), Color.Black); 
@@ -436,6 +480,34 @@ namespace PhysicsGame
             #region WinDraw
             #endregion
                     break;
+                case GameState.lose:
+            #region LoseDraw
+                    spriteBatch.Begin();
+
+                    
+                    back.Draw();
+                    spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
+                    spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
+                    tower.Draw(gameTime, spriteBatch);
+            foreach (Barrier b in barrierList)
+            {
+                b.Draw(gameTime, spriteBatch);
+            }
+            foreach (Enemy e in enemyList)
+            {
+                e.Draw(gameTime, spriteBatch);
+            }
+
+            player.Draw(gameTime, spriteBatch);
+
+
+
+            spriteBatch.Draw(Content.Load<Texture2D>("greyBack"), new Rectangle(0, 0, 1280, 722), Color.White);
+            spriteBatch.End();
+
+
+            #endregion
+                    break;
         }
 
 
@@ -445,7 +517,7 @@ namespace PhysicsGame
         private void updateInput()
         {
             bool keyPressed = false;
-            bool keyPressed2 = false;
+           
 
             player.OriginalVelocity = new Vector2(2);
             
@@ -486,14 +558,6 @@ namespace PhysicsGame
                 player.Right();
             }
 
-            if (keyState.IsKeyDown(Keys.RightShift)
-               || gamePadState.Buttons.RightShoulder == ButtonState.Pressed)
-              
-            {
-                //Kick Method
-            }
-
-
             if (keyState.IsKeyDown(Keys.RightControl)
              || gamePadState.Buttons.LeftShoulder == ButtonState.Pressed)
             {
@@ -525,22 +589,22 @@ namespace PhysicsGame
 
             }
 
-            if (keyState.IsKeyDown(Keys.Q))
-            {
-                shootState = ShootingState.Arrow;
-               // cam.Zoom -= 0.1f;
-            }
+            //if (keyState.IsKeyDown(Keys.Q))
+            //{
+            //    shootState = ShootingState.Arrow;
+              
+            //}
 
-            if (keyState.IsKeyDown(Keys.W))
-            {
-                shootState = ShootingState.Ball;
-               // cam.Zoom += 0.1f;
-            }
+            //if (keyState.IsKeyDown(Keys.W))
+            //{
+            //    shootState = ShootingState.Ball;
+              
+            //}
 
             if (keyState.IsKeyDown(Keys.E))
             {
-                shootState = ShootingState.Fireball;
-                //cam.Rotation += 0.5f;
+                currGameState = GameState.lose;
+               
             }
 
 
@@ -551,28 +615,28 @@ namespace PhysicsGame
                {
                     switch (shootState)
                     {
-                        case ShootingState.Ball:
-                            Sprite ballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, 1f, SpriteEffects.None, null, 0);
+                        //case ShootingState.Ball:
+                        //    Sprite ballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
+                        //                new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, 1f, SpriteEffects.None, null, 0);
 
 
-                            shootList.Add(ballShot);
+                        //    shootList.Add(ballShot);
 
-                            break;
-
-
-                        case ShootingState.Fireball:
-                            Sprite fireballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, 1.5f, SpriteEffects.None, null, 0);
+                        //    break;
 
 
-                            shootList.Add(fireballShot);
+                        //case ShootingState.Fireball:
+                        //    Sprite fireballShot = new Sprite(ballTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
+                        //                new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 100f, true, 0, 1.5f, SpriteEffects.None, null, 0);
 
-                            break;
+
+                        //    shootList.Add(fireballShot);
+
+                        //    break;
 
                         case ShootingState.Arrow:
                             Sprite arrowShot = new Sprite(arrowTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
-                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 125f, true, 0, 1f, SpriteEffects.None, null, 0);
+                                        new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 125f, true, 0, 0.5f, SpriteEffects.None, null, 0);
 
 
 
@@ -613,27 +677,27 @@ namespace PhysicsGame
 
                     break;
 
-                case ShootingState.Ball:
-                    //---Ball-Physics--
-                    foreach (Sprite s in shootList)
-                    {
-                        s.Velocity += new Vector2(0, 5);
+                //case ShootingState.Ball:
+                //    //---Ball-Physics--
+                //    foreach (Sprite s in shootList)
+                //    {
+                //        s.Velocity += new Vector2(0, 5);
 
 
 
                      
-                    }
+                //    }
 
-                    break;
+                //    break;
 
-                case ShootingState.Fireball:
-                    //---Fireball-Physics--
-                    foreach (Sprite s in shootList)
-                    {
-                        s.Velocity += new Vector2(0, 5);
-                    }
+                //case ShootingState.Fireball:
+                //    //---Fireball-Physics--
+                //    foreach (Sprite s in shootList)
+                //    {
+                //        s.Velocity += new Vector2(0, 5);
+                //    }
 
-                    break;
+                //    break;
 
 
 
@@ -678,7 +742,7 @@ namespace PhysicsGame
 
                                     Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
                                        leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
-                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy);
                                     spawnDelay = SPAWN_DELAY;
@@ -687,7 +751,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), leftSide,
                                        leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(100, 100), new Vector2(0, 0),
-                                        new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(17, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy);
                                     spawnDelay = SPAWN_DELAY;
@@ -703,7 +767,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
                                         true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
-                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy2);
 
@@ -713,7 +777,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), rightSide, rightSpeed,
                                         true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(100, 100),
-                                        new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy2);
 
@@ -748,7 +812,7 @@ namespace PhysicsGame
 
                                     Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
                                        leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
-                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy);
                                     spawnDelay = SPAWN_DELAY_BIGGER;
@@ -757,7 +821,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), leftSide,
                                        leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(100, 100), new Vector2(0, 0),
-                                        new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(17, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy);
                                     spawnDelay = SPAWN_DELAY_BIGGER;
@@ -773,7 +837,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
                                         true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
-                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy2);
 
@@ -783,7 +847,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), rightSide, rightSpeed,
                                         true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(100, 100),
-                                        new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+                                        new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1, false);
 
                                     enemyList.Add(enemy2);
 
@@ -820,7 +884,7 @@ namespace PhysicsGame
 
                             Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
                                leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
-                                new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+                                new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
 
                             enemyList.Add(enemy);
                             spawnDelay = SPAWN_DELAY_FASTER;
@@ -829,7 +893,7 @@ namespace PhysicsGame
                         {
                             Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), leftSide,
                                leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(100, 100), new Vector2(0, 0),
-                                new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+                                new Vector2(17, 2), 1f, null, 0, 5, 1, 1, false);
 
                             enemyList.Add(enemy);
                             spawnDelay = SPAWN_DELAY_FASTER;
@@ -845,7 +909,7 @@ namespace PhysicsGame
                         {
                             Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
                                 true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
-                                new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1);
+                                new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
 
                             enemyList.Add(enemy2);
 
@@ -855,7 +919,7 @@ namespace PhysicsGame
                         {
                             Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\circle"), rightSide, rightSpeed,
                                 true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(100, 100),
-                                new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1);
+                                new Vector2(0, 0), new Vector2(17, 2), 1f, null, 0, 5, 1, 1, false);
 
                             enemyList.Add(enemy2);
 
