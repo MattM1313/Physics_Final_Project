@@ -138,11 +138,11 @@ namespace PhysicsGame
             towerTex = Content.Load<Texture2D>("physics_tower");
             tower = new Tower(towerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 254 ),
                  .5f, SpriteEffects.None, 100);
-            playerTex = Content.Load<Texture2D>("physics_triangle");
+            playerTex = Content.Load<Texture2D>("tri_sp");
 
 
             player = new Player(playerTex, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 60), new Vector2(0, 0), true,
-                0f, 0.5f, SpriteEffects.None, new Vector2(178, 113), new Vector2(0, 0), new Vector2(1, 1), 1f, 10, 0, 5);
+                0f, 0.5f, SpriteEffects.None, new Vector2(105, 81), new Vector2(0, 0), new Vector2(9, 1), 1f, 10, 0, 5);
 
            
 
@@ -429,46 +429,16 @@ namespace PhysicsGame
                
             // Draw instructions
             Color c = new Color(0, 0, 0);
-            string arrow = "Q = Arrows";
-            string ball = "W = CannonBalls";
-            string fireball = "E = FireBalls";
+           
 
             string bd = tower.Health.ToString();
-            string space = "Space to fire";
+            
 
             ForegroundBatch.DrawString(Font, bd, new Vector2(GraphicsDevice.Viewport.Width - 100, 10), Color.Black); 
             
-            if (shootState == ShootingState.Arrow)
-            {
-                ForegroundBatch.DrawString(Font, arrow, new Vector2(10, 10), Color.Red);
-                
-            }
-            else
-            {
-                ForegroundBatch.DrawString(Font, arrow, new Vector2(10, 10), Color.Black);
-                
-            }
+            
 
-
-            if (shootState == ShootingState.Ball)
-            {
-                ForegroundBatch.DrawString(Font, ball, new Vector2(10, 30), Color.Red);
-            }
-            else
-            {
-                ForegroundBatch.DrawString(Font, ball, new Vector2(10, 30), Color.Black);
-            }
-
-            if (shootState == ShootingState.Fireball)
-            {
-                ForegroundBatch.DrawString(Font, fireball, new Vector2(10, 50), Color.Red);
-            }
-            else
-            {
-                ForegroundBatch.DrawString(Font, fireball, new Vector2(10, 50), Color.Black);
-            }
-
-            ForegroundBatch.DrawString(Font, space, new Vector2(10, 400), c);
+            
             ForegroundBatch.End();
 #endregion
                     break;
@@ -479,7 +449,7 @@ namespace PhysicsGame
                 case GameState.win:
             #region WinDraw
             #endregion
-                    break;
+                    break;  
                 case GameState.lose:
             #region LoseDraw
                     spriteBatch.Begin();
@@ -503,6 +473,9 @@ namespace PhysicsGame
 
 
             spriteBatch.Draw(Content.Load<Texture2D>("greyBack"), new Rectangle(0, 0, 1280, 722), Color.White);
+
+                    spriteBatch.DrawString(Font, "Game Over", new Vector2(GraphicsDevice.Viewport.Width/2 - Font.MeasureString("Game Over").X/2,
+                        GraphicsDevice.Viewport.Height / 2 - Font.MeasureString("Game Over").Y), Color.White);
             spriteBatch.End();
 
 
