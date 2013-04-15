@@ -2,21 +2,16 @@ Content\shield2_1.xnb
 Content\ball.xnb
 Content\Arrow.xnb
 Content\Bow.xnb
-Content\Courrier.xnb
 Content\player.xnb
 Content\barrier.xnb
 Content\enemy.xnb
-Content\Enemy\angry_square.xnb
 Content\Enemy\circle.xnb
+Content\Enemy\angry_square.xnb
 Content\back\physics_ground.xnb
 Content\back\physics_hills.xnb
 Content\back\physics_sky.xnb
 Content\tower.xnb
 Content\physics_arrow.xnb
-Content\Audio\Arrow-SoundBible.com-1760405458.xnb
-Content\Audio\Bow_Fire_Arrow-Stephan_Schutze-2133929391.xnb
-Content\Audio\flyby-Conor-1500306612.xnb
-Content\Audio\Nature Ambiance-SoundBible.com-1444637890.xnb
 Content\physics_tower.xnb
 Content\physics_barrier.xnb
 Content\physics_triangle.xnb
@@ -29,3 +24,20 @@ Content\physics_tower4.xnb
 Content\physics_tower5.xnb
 Content\greyBack.xnb
 Content\tri_sp.xnb
+Content\polygon_enemy.xnb
+Content\DeadCircle.xnb
+Content\DeadSquare.xnb
+Content\tower1.xnb
+Content\Courrier.xnb
+Content\Audio\Arrow-SoundBible.com-1760405458.xnb
+Content\Audio\Bow_Fire_Arrow.xnb
+Content\Audio\flyby-Conor-1500306612.xnb
+Content\Audio\Nature Ambiance-SoundBible.com-1444637890.xnb
+Content\Audio\Attack!.xnb
+Content\Audio\Charge!.xnb
+Content\Audio\HittingTower.xnb
+Content\Audio\OutdoorNoise.xnb
+Content\Audio\TowerCrumble.xnb
+Content\Audio\ChillInGame.xnb
+Content\Audio\OutdoorNoise.wma
+Content\Audio\ChillInGame.wma

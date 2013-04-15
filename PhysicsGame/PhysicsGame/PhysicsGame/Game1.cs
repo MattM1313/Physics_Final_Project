@@ -34,6 +34,9 @@ namespace PhysicsGame
         GameState currGameState = GameState.menu;
         float spawnTime;
 
+        bool playSound = false;
+
+
         //---Player---
         Tower tower;
         Player player;
@@ -51,15 +54,26 @@ namespace PhysicsGame
 
         float barrierDelay = BARRIER_DELAY;
         const float BARRIER_DELAY = 1000f;
+        const int BARRIER_MAX = 5;
+        int barrierCount = 0;
+        float barrierSpawnTime = 5000f;
 
         float spawnDelay = SPAWN_DELAY;
-        const float SPAWN_DELAY = 3000f;
-        const float SPAWN_DELAY_BIGGER = 2000f;
-        const float SPAWN_DELAY_FASTER = 500f;
+        
+        
+        const float SPAWN_DELAY = 1000f;
+        const float SPAWN_DELAY_BIGGER = 500f;
+        const float SPAWN_DELAY_FASTER = 100f;
 
         //------------
 
+        Song outdoor, inGame;
+        SoundEffect attack, charge, towerHit, towerCrumble, arrow;
 
+
+
+        SpriteFromSheet towerDeath, deadCircle, deadSquare;
+        
         //---Camera---
         Camera cam;
         //cam.Pos = new Vector2(500.0f,200.0f);
@@ -88,8 +102,10 @@ namespace PhysicsGame
         Menu mainMenu;
         Menu optionsMenu;
         Texture2D menuLogo;
-        
-        
+
+
+        bool posChanged = false;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -115,7 +131,7 @@ namespace PhysicsGame
 
             r = new Random();
 
-
+          
 
 
 
@@ -131,6 +147,29 @@ namespace PhysicsGame
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+
+
+
+
+           outdoor = Content.Load<Song>("Audio/OutdoorNoise");
+           attack = Content.Load<SoundEffect>("Audio/Attack!");
+           charge = Content.Load<SoundEffect>("Audio/Charge!");
+           towerHit = Content.Load<SoundEffect>("Audio/HittingTower");
+           towerCrumble = Content.Load<SoundEffect>("Audio/TowerCrumble");
+           arrow = Content.Load<SoundEffect>("Audio/Bow_Fire_Arrow");
+           inGame = Content.Load<Song>("Audio/ChillInGame");
+
+
+          
+
+           MediaPlayer.Play(outdoor);
+           MediaPlayer.IsRepeating = false;
+
+           MediaPlayer.Play(inGame);
+           MediaPlayer.IsRepeating = true;
+
+
+  
 
 
             //-----------
@@ -173,7 +212,7 @@ namespace PhysicsGame
             back.StartMoving();
             
             //menu
-            string[] menuItems = { "Play", "Options", "Exit" };
+            string[] menuItems = { "Play", "Instructions", "Exit" };
             mainMenu = new Menu(GraphicsDevice, Font, menuItems);
             menuLogo = Content.Load<Texture2D>("PhysicsLogo");
 
@@ -182,6 +221,19 @@ namespace PhysicsGame
             optionsMenu = new Menu(GraphicsDevice, Font, menuItems2);
             menuLogo = Content.Load<Texture2D>("PhysicsLogo");
 
+            towerDeath = new SpriteFromSheet(Content.Load<Texture2D>("tower1"), tower.Position, Vector2.Zero, true, 0, 0.5f, SpriteEffects.None,
+                new Vector2(415, 885), new Vector2(0, 0), new Vector2(4, 4), 3f, towerCrumble, 0);
+
+            //int animTime = 3;
+            //deadCircle = new SpriteFromSheet(Content.Load<Texture2D>("DeadCircle"), Vector2.Zero, Vector2.Zero, true, 0, 0.5f, SpriteEffects.None,
+            //    new Vector2(100, 100), new Vector2(0, 0), new Vector2(4, 4), animTime, null, 1);
+            //deadSquare = new SpriteFromSheet(Content.Load<Texture2D>("DeadSquare"), Vector2.Zero, Vector2.Zero, true, 0, 0.5f, SpriteEffects.None,
+            //    new Vector2(100, 100), new Vector2(0, 0), new Vector2(4, 4), animTime, null, 2);
+
+
+            //deadCircle.Active = false;
+            //deadSquare.Active = false;
+           
 
         }
 
@@ -232,15 +284,35 @@ namespace PhysicsGame
             #region game
             float elapsed = (float)gameTime.ElapsedGameTime.TotalMilliseconds;
            double time= gameTime.ElapsedGameTime.TotalSeconds;
+
+
            
-           
+           if (posChanged == false)
+           {
+
+               player.Position = new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - 60);
+               posChanged = true;
+           }
+
+           barrierSpawnTime -= elapsed;
+           if (barrierSpawnTime <= 0f)
+           {
+               if (barrierCount <= 5)
+               {
+                   barrierCount++;
+                   barrierSpawnTime = BARRIER_DELAY;
+               }
+               }
 
             back.Update(gameTime);
-
-           
+            
                 for (int j = 0; j < enemyList.Count; j++)
                 {
                     enemyList[j].Update(gameTime);
+
+                   
+                       
+                    
                     for(int b = 0; b < barrierList.Count; b++)
                     {
                         if (enemyList[j].CollisionRectangle.Intersects(barrierList[b].CollisionRectangle))
@@ -260,10 +332,34 @@ namespace PhysicsGame
                             break;
                         }
                     }
+                    
+                   
+                    //deadCircle.Update(gameTime);
+                    //if (deadCircle.CurrentFrame == new Vector2(3, 0))
+                    //{
+                    //    deadCircle.Active = false;
+                    //}
                     for (int e = 0; e < shootList.Count; e++)
                     {
                         if (enemyList[j].CollisionRectangle.Intersects(shootList[e].CollisionRectangle))
-                        {
+                        { 
+                           
+
+                            //if (enemyList[j].Defense == 1)
+                            //{
+                            //    deadCircle.Position = enemyList[j].Position;
+                            //    deadCircle.Scale = enemyList[j].Scale;
+                            //    deadCircle.Active = true;
+                                
+
+                            //}
+
+                            //if (enemyList[j].TextureImage == Content.Load<Texture2D>("DeadSquare"))
+                            //{
+
+                            //}
+
+
                             shootList.RemoveAt(e);
                             enemyList.RemoveAt(j);
                             break;
@@ -283,11 +379,37 @@ namespace PhysicsGame
                         {
                             tower.Health = tower.Health - 1;
                             e.HasHit = true;
+                            towerHit.Play();
                             break;
 
                         }
 
                     }
+
+                }
+
+
+
+                foreach (Enemy enemy in enemyList)
+                {
+                    if (player.CollisionRectangle.Intersects(enemy.CollisionRectangle))
+                    {
+                        if (enemy.Velocity.X > 0)
+                        {
+                            player.Position = enemy.Position + new Vector2(50,0);
+                        }
+
+                        if (enemy.Velocity.X < 0)
+                        {
+                            player.Position = enemy.Position - new Vector2(50, 0);
+                        }
+
+
+
+
+                    }
+
+
 
                 }
 
@@ -309,9 +431,26 @@ namespace PhysicsGame
                 }
                 if (tower.Health <= 0)
                 {
-                    currGameState = GameState.lose;
-                }
 
+                    towerDeath.Update(gameTime);
+                    if (tower.Active == true)
+                    {
+                        towerDeath.CollisionCueName.Play();
+                    }
+                        tower.Active = false;
+                    
+                    if( towerDeath.CurrentFrame == new Vector2(3,3))
+                    {
+                        currGameState = GameState.lose;
+                    }
+                    
+                    
+                    
+                }
+                    //towerDeath = new SpriteFromSheet(Content.Load<Texture2D>("tower1"), tower.Position, Vector2.Zero, true, 0, 1f, SpriteEffects.None,
+                    //    new Vector2(415, 885), new Vector2(0, 0), new Vector2(4, 4), 0.5f, null, 0);
+                     towerDeath.Update(gameTime);
+               
                 
             
             fireDelay -= elapsed;
@@ -348,24 +487,37 @@ namespace PhysicsGame
 
             updateInput();
             doPhysics();
+         
+
             if (spawnTime <= 20000f)
             {
                 spawnEnemies();
+                
+                
             }
-            else if (spawnTime >= 50000f)
+            else if (spawnTime >= 30000f)
             {
                 spawnBiggerEnemies();
+                
             }
-            else if (spawnTime >= 20000f && spawnTime <= 50000f)
+            else if (spawnTime >= 35000f && spawnTime <= 40000f)
             {
                 spawnFasterEnemies();
+              
             }
-            if (spawnTime > 10000f)
+            else if (spawnTime > 25000f)
             {
                 spawnEnemies();
                 spawnFasterEnemies();
                 spawnBiggerEnemies();
+             
             }
+            else if (spawnTime > 50000f)
+            {
+                spawnTime = 0f;
+            }
+
+
 
             #endregion
             break;
@@ -426,6 +578,12 @@ namespace PhysicsGame
             
 
             tower.Draw(gameTime, spriteBatch);
+            if (tower.Health == 0)
+            {
+                towerDeath.Draw(gameTime, spriteBatch);
+            }
+
+         
             foreach (Barrier b in barrierList)
             {
                 b.Draw(gameTime, spriteBatch);
@@ -435,6 +593,19 @@ namespace PhysicsGame
                 e.Draw(gameTime, spriteBatch);
             }
 
+          
+            //if (deadCircle.Active == true)
+            //{
+            //    deadCircle.Draw(gameTime, spriteBatch);
+                
+            //}
+            //if (deadSquare.Active)
+            //{
+            //    deadSquare.Draw(gameTime, spriteBatch);
+            //}
+
+
+           
             player.Draw(gameTime, spriteBatch);
             foreach (Sprite shot in shootList)
             {
@@ -477,6 +648,8 @@ namespace PhysicsGame
             ForegroundBatch.DrawString(Font, bd, new Vector2(0, 10), Color.Black);
 
             ForegroundBatch.DrawString(Font, time, new Vector2(0, 50), Color.Black);
+
+            //ForegroundBatch.DrawString(Font, "Barriers: " + barrierCount, new Vector2(0, 90), Color.Black);
             
             
 
@@ -527,7 +700,9 @@ namespace PhysicsGame
                     back.Draw();
                     spriteBatch.Draw(b2, new Rectangle(0, 0, 1280, 722), Color.White);
                     spriteBatch.Draw(b3, new Rectangle(0, 0, 1280, 720), Color.White);
-                    tower.Draw(gameTime, spriteBatch);
+                    towerDeath.Draw(gameTime, spriteBatch);
+                    towerDeath.CurrentFrame = new Vector2(2, 3);
+                    
             foreach (Barrier b in barrierList)
             {
                 b.Draw(gameTime, spriteBatch);
@@ -609,14 +784,21 @@ namespace PhysicsGame
             if (keyState.IsKeyDown(Keys.RightControl)
              || gamePadState.Buttons.LeftShoulder == ButtonState.Pressed)
             {
-                if (barrierDelay <= 0f)
+                if (barrierList.Count < BARRIER_MAX )
                 {
+                    if (barrierCount > 0)
+                    {
+                        if (barrierDelay <= 0f)
+                        {
 
-                    createBarrier();
-                    barrierDelay = BARRIER_DELAY;
+                            createBarrier();
+                            barrierCount--;
+
+                            barrierDelay = BARRIER_DELAY;
+                        }
+                    }
+
                 }
-              
- 
             }
             if (!keyPressed)
             {
@@ -651,7 +833,7 @@ namespace PhysicsGame
 
             if (keyState.IsKeyDown(Keys.E))
             {
-                currGameState = GameState.lose;
+                tower.Health = 0;
                
             }
 
@@ -686,7 +868,7 @@ namespace PhysicsGame
                             Sprite arrowShot = new Sprite(arrowTex, new Vector2(tower.Position.X - 5, tower.Position.Y),
                                         new Vector2((float)Math.Cos((angle)), (float)Math.Sin((angle))) * 125f, true, 0, 0.5f, SpriteEffects.None, null, 0);
 
-
+                            arrow.Play();
 
                             //arrowShot.Rotation = angle + (float)45.5;
                             arrowShot.Rotation += (float)Math.Atan2(arrowShot.Velocity.X * 10, -arrowShot.Velocity.Y * 10);
@@ -761,6 +943,7 @@ namespace PhysicsGame
         private void createBarrier()
         {
 
+            
             Barrier barrier = new Barrier(Content.Load<Texture2D>("physics_barrier"), player.Position, Vector2.Zero, true, 0f, 0.5f, SpriteEffects.None, 1f, 5);
             
             barrierList.Add(barrier);
@@ -771,16 +954,21 @@ namespace PhysicsGame
 
         private void spawnEnemies()
         {
-
+            
             int pickSide = r.Next(2);
             Vector2 leftSide = new Vector2(0, GraphicsDevice.Viewport.Height - 55 );
             Vector2 rightSide = new Vector2(GraphicsDevice.Viewport.Width - 55, GraphicsDevice.Viewport.Height - 55);
             Vector2 leftSpeed = new Vector2(5, 0);
             Vector2 rightSpeed = new Vector2(-5, 0);
-
+            
             
                     if (spawnDelay <= 0f)
                     {
+                        if (!playSound)
+                        {
+                            attack.Play();
+                            playSound = true;
+                        }
                         switch(pickSide)
                         {
                         case 0:
@@ -790,7 +978,7 @@ namespace PhysicsGame
 
                                     Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
                                        leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
-                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
+                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 2, false);
 
                                     enemyList.Add(enemy);
                                     spawnDelay = SPAWN_DELAY;
@@ -815,7 +1003,7 @@ namespace PhysicsGame
                                 {
                                     Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
                                         true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
-                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
+                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 2, false);
 
                                     enemyList.Add(enemy2);
 
@@ -851,16 +1039,21 @@ namespace PhysicsGame
             
                     if (spawnDelay <= 0f)
                     {
+                        if (!playSound)
+                        {
+                            attack.Play();
+                            playSound = true;
+                        }
                         switch(pickSide)
                         {
                         case 0:
-                                int pickEnemy = r.Next(2);
+                                int pickEnemy = r.Next(3);
                                 if (pickEnemy == 0)
                                 {
 
                                     Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
                                        leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
-                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
+                                        new Vector2(14, 2), 1f, null, 0, 5, 1, 2, false);
 
                                     enemyList.Add(enemy);
                                     spawnDelay = SPAWN_DELAY_BIGGER;
@@ -877,15 +1070,30 @@ namespace PhysicsGame
 
 
                                 }
+                                if (pickEnemy == 2)
+                                {
+                                    Enemy enemy = new Enemy(Content.Load<Texture2D>("polygon_enemy"), leftSide,
+                                       new Vector2(15,0), true, 0f, 0.3f, SpriteEffects.None, new Vector2(150, 100), new Vector2(0, 0),
+                                        new Vector2(1, 1), 0.5f, null, 0, 5, 1, 0, false);
+
+                                    enemyList.Add(enemy);
+                                    spawnDelay = SPAWN_DELAY_BIGGER;
+
+
+
+                                }
+
+
+
                         break;
 
                             case 1:
-                                pickEnemy = r.Next(2);
+                                pickEnemy = r.Next(3);
                                 if (pickEnemy == 0)
                                 {
                                     Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
                                         true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
-                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
+                                        new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 2, false);
 
                                     enemyList.Add(enemy2);
 
@@ -900,6 +1108,18 @@ namespace PhysicsGame
                                     enemyList.Add(enemy2);
 
                                     spawnDelay = SPAWN_DELAY_BIGGER;
+                                }
+                                if (pickEnemy == 2)
+                                {
+                                    Enemy enemy = new Enemy(Content.Load<Texture2D>("polygon_enemy"), leftSide,
+                                       new Vector2(-15, 0), true, 0f, 0.3f, SpriteEffects.None, new Vector2(150, 100), new Vector2(0, 0),
+                                        new Vector2(1, 1), 1f, null, 0, 5, 1, 0, false);
+
+                                    enemyList.Add(enemy);
+                                    spawnDelay = SPAWN_DELAY_BIGGER;
+
+
+
                                 }
                         break;
 
@@ -923,6 +1143,11 @@ namespace PhysicsGame
 
             if (spawnDelay <= 0f)
             {
+                if (!playSound)
+                {
+                    attack.Play();
+                    playSound = true;
+                }
                 switch (pickSide)
                 {
                     case 0:
@@ -932,7 +1157,7 @@ namespace PhysicsGame
 
                             Enemy enemy = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), leftSide,
                                leftSpeed, true, 0f, 0.3f, SpriteEffects.None, new Vector2(110, 110), new Vector2(0, 0),
-                                new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
+                                new Vector2(14, 2), 1f, null, 0, 5, 1, 2, false);
 
                             enemyList.Add(enemy);
                             spawnDelay = SPAWN_DELAY_FASTER;
@@ -957,7 +1182,7 @@ namespace PhysicsGame
                         {
                             Enemy enemy2 = new Enemy(Content.Load<Texture2D>("Enemy\\angry_square"), rightSide, rightSpeed,
                                 true, 0f, 0.3f, SpriteEffects.FlipHorizontally, new Vector2(110, 110),
-                                new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 1, false);
+                                new Vector2(0, 0), new Vector2(14, 2), 1f, null, 0, 5, 1, 2, false);
 
                             enemyList.Add(enemy2);
 
